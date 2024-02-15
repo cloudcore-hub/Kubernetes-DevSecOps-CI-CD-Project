@@ -94,19 +94,246 @@ Run the below command, and add your keys
 `aws configure`
 [image]
 
-### Step 3: 
+### Step 3: Deploy the Jenkins Server(EC2) using Terraform
+Clone the Git repository https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/
 
-### Step 4: 
+`git clone https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project`
 
-### Step 5: 
+Navigate to the Jenkins-Server-TF
 
-### Step 6: 
+Do some modifications to the backend.tf file such as changing the bucket name and dynamodb table(make sure you have created both manually on AWS Cloud).
 
-### Step 7: 
+[image]
 
-### Step 8: 
+Now, you have to replace the Pem File name as you have some other name for your Pem file. To provide the Pem file name that is already created on AWS
+[image]
 
-### Step 9: 
+Initialize the backend by running the below command
+`terraform init`
+
+[image]
+
+Run the below command to check the syntax error
+
+`terraform validate`
+
+[image]
+
+Run the below command to get the blueprint of what kind of AWS services will be created.
+
+`terraform plan -var-file=variables.tfvars`
+
+[image]
+
+Now, run the below command to create the infrastructure on AWS Cloud which will take 3 to 4 minutes maximum
+
+`terraform apply -var-file=variables.tfvars --auto-approve`
+
+[image]
+
+Now, connect to your Jenkins-Server by clicking on Connect.
+[image]
+
+Copy the ssh command and paste it on your local machine.
+[image]
+
+
+### Step 4: Configure the Jenkins
+Now, we logged into our Jenkins server.
+[image]
+
+We have installed some services such as Jenkins, Docker, Sonarqube, Terraform, Kubectl, AWS CLI, and Trivy.
+
+Let’s validate whether all our tools are installed or not.
+```
+jenkins --version
+docker --version
+docker ps
+terraform --version
+kubectl version
+aws --version
+trivy --version
+eksctl --version
+```
+
+[image]
+
+### Step 5: Deploy the EKS Cluster using eksctl commands
+Now, go back to your Jenkins Server terminal and configure the AWS.
+[image]
+
+Create an eks cluster using the below commands.
+```
+eksctl create cluster --name Three-Tier-K8s-EKS-Cluster --region us-east-1 --node-type t2.medium --nodes-min 2 --nodes-max 2
+aws eks update-kubeconfig --region us-east-1 --name Three-Tier-K8s-EKS-Cluster
+```
+
+Once your cluster is created, you can validate whether your nodes are ready or not by the below command
+
+kubectl get nodes
+[image]
+
+
+### Step 6: configure the Load Balancer on our EKS because our application will have an ingress controller.
+Download the policy for the LoadBalancer prerequisite.
+```
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
+```
+
+[image]
+
+Create the IAM policy using the below command
+```
+aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.
+```
+[image]
+
+Create OIDC Provider
+```
+eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=Three-Tier-K8s-EKS-Cluster --approve
+```
+[image]
+
+Create Service Account
+```
+eksctl create iamserviceaccount --cluster=Three-Tier-K8s-EKS-Cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
+```
+[image]
+
+Run the below command to deploy the AWS Load Balancer Controller
+
+```
+sudo snap install helm --classic
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update eks
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=my-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+```
+
+After 2 minutes, run the command below to check whether your pods are running or not.
+```
+kubectl get deployment -n kube-system aws-load-balancer-controller
+```
+[image]
+
+
+### Step 7: Create Amazon ECR Private Repositories for both Tiers (Frontend & Backend)
+Click on Create repository
+[image]
+
+Select the Private option to provide the repository and click on Save.
+[image]
+
+Do the same for the backend repository and click on Save
+[image]
+
+Now, we have set up our ECR Private Repository and
+[image]
+
+Now, we need to configure ECR locally because we have to upload our images to Amazon ECR.
+
+Copy the 1st command for login
+[image]
+
+Now, run the copied command on your Jenkins Server.
+[image]
+
+
+
+### Step 8: Install & Configure ArgoCD
+We will be deploying our application on a three-tier namespace. To do that, we will create a three-tier namespace on EKS
+
+```
+kubectl create namespace three-tier
+```
+[image]
+
+As you know, Our two ECR repositories are private. So, when we try to push images to the ECR Repos it will give us the error Imagepullerror.
+
+To get rid of this error, we will create a secret for our ECR Repo by the below command and then, we will add this secret to the deployment file.
+
+Note: The Secrets are coming from the .docker/config.json file which is created while login the ECR in the earlier steps
+
+```
+kubectl create secret generic ecr-registry-secret \
+  --from-file=.dockerconfigjson=${HOME}/.docker/config.json \
+  --type=kubernetes.io/dockerconfigjson --namespace three-tier
+kubectl get secrets -n three-tier
+```
+[image]
+
+Now, we will install argoCD.
+
+To do that, create a separate namespace for it and apply the argocd configuration for installation.
+
+```
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.7/manifests/install.yaml
+```
+[image]
+
+All pods must be running, to validate run the below command
+```
+kubectl get pods -n argocd
+```
+[image]
+
+Now, expose the argoCD server as LoadBalancer using the below command
+```
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+```
+[image]
+
+You can validate whether the Load Balancer is created or not by going to the AWS Console
+[image]
+
+To access the argoCD, copy the LoadBalancer DNS and hit on your favorite browser.
+
+You will get a warning like the below snippet.
+
+Click on Advanced.
+[image]
+
+Click on the below link which is appearing under Hide advanced
+[image]
+
+Now, we need to get the password for our argoCD server to perform the deployment.
+
+To do that, we have a pre-requisite which is jq. Install it by the command below.
+```
+sudo apt install jq -y
+```
+[image]
+
+```
+export ARGOCD_SERVER='kubectl get svc argocd-server -n argocd -o json | jq - raw-output '.status.loadBalancer.ingress[0].hostname''
+export ARGO_PWD='kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
+echo $ARGO_PWD
+```
+[image]
+
+Enter the username and password in argoCD and click on SIGN IN.
+[image]
+
+Here is our ArgoCD Dashboard.
+[image]
+
+
+### Step 9: Configure Sonarqube for our DevSecOps Pipeline
+To do that, copy your Jenkins Server public IP and paste it on your favorite browser with a 9000 port
+
+The username and password will be admin
+
+Click on Log In.
+[image]
+
+Update the password
+[image]
+
+Click on Administration then Security, and select Users
+[image]
+
+Click on Update tokens
+[image]
 
 ### Step 10: 
 
