@@ -1,5 +1,11 @@
 # Kubernetes-DevSecOps-CI-CD-Project
 
+[Create an IAM user and generate the AWS Access key](#step-1:-create-an-iam-user-and-generate-the-aws-access-key)
+[Install Terraform & AWS CLI to deploy our Jenkins Server(EC2) on AWS.](#step-2:-install-terraform-&-aws-cli-to-deploy-our-jenkins-server(ec2)-on-aws.)
+[Deploy the Jenkins Server(EC2) using Terraform](#step-3:-deploy-the-jenkins-server(ec2)-using-terraform)
+[Configure the Jenkins](#-Step-4:-Configure-the-Jenkins)
+
+
 ### Project Introduction:
 Welcome to the End-to-End DevSecOps Kubernetes Project guide! In this comprehensive project, we will walk through the process of setting up a robust Three-Tier architecture on AWS using Kubernetes, DevOps best practices, and security measures. This project aims to provide hands-on experience in deploying, securing, and monitoring a scalable application environment.
 
