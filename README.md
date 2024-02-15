@@ -1,10 +1,18 @@
 # Kubernetes-DevSecOps-CI-CD-Project
 
-[Create an IAM user and generate the AWS Access key](#step-1:-create-an-iam-user-and-generate-the-aws-access-key)
-[Install Terraform & AWS CLI to deploy our Jenkins Server(EC2) on AWS.](#step-2:-install-terraform-&-aws-cli-to-deploy-our-jenkins-server(ec2)-on-aws.)
-[Deploy the Jenkins Server(EC2) using Terraform](#step-3:-deploy-the-jenkins-server(ec2)-using-terraform)
-
-[Configure the Jenkins](#-Step-4:-Configure-the-Jenkins)
+- [Step 1: Create an IAM user and generate the AWS Access key](#step-1-create-an-iam-user-and-generate-the-aws-access-key)
+- [Step 2: Install Terraform & AWS CLI to deploy our Jenkins Server(EC2) on AWS](#step-2-install-terraform--aws-cli-to-deploy-our-jenkins-server-ec2-on-aws)
+- [Step 3: Deploy the Jenkins Server(EC2) using Terraform](#step-3-deploy-the-jenkins-server-ec2-using-terraform)
+- [Step 4: Configure the Jenkins](#step-4-configure-the-jenkins)
+- [Step 5: Deploy the EKS Cluster using eksctl commands](#step-5-deploy-the-eks-cluster-using-eksctl-commands)
+- [Step 6: Configure the Load Balancer on our EKS because our application will have an ingress controller](#step-6-configure-the-load-balancer-on-our-eks-because-our-application-will-have-an-ingress-controller)
+- [Step 7: Create Amazon ECR Private Repositories for both Tiers (Frontend & Backend)](#step-7-create-amazon-ecr-private-repositories-for-both-tiers-frontend--backend)
+- [Step 8: Install & Configure ArgoCD](#step-8-install--configure-argocd)
+- [Step 9: Configure Sonarqube for our DevSecOps Pipeline](#step-9-configure-sonarqube-for-our-devsecops-pipeline)
+- [Step 10: Install the required plugins and configure the plugins to deploy our Three-Tier Application](#step-10-install-the-required-plugins-and-configure-the-plugins-to-deploy-our-three-tier-application)
+- [Step 11: Set up the Monitoring for our EKS Cluster. We can monitor the Cluster Specifications and other necessary things](#step-11-set-up-the-monitoring-for-our-eks-cluster-we-can-monitor-the-cluster-specifications-and-other-necessary-things)
+- [Step 12: Deploy Three-Tier Application using ArgoCD](#step-12-deploy-three-tier-application-using-argocd)
+- [Conclusion](#conclusion)
 
 
 ### Project Introduction:
