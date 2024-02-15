@@ -335,8 +335,344 @@ Click on Administration then Security, and select Users
 Click on Update tokens
 [image]
 
-### Step 10: 
+Click on Generate
+[image]
 
-### Step 11: 
+Copy the token keep it somewhere safe and click on Done.
+[image]
+
+Now, we have to configure webhooks for quality checks.
+
+Click on Administration then, Configuration and select Webhooks
+[image]
+
+Click on Create
+[image]
+
+Provide the name of your project and in the URL, provide the Jenkins server public IP with port 8080 add sonarqube-webhook in the suffix, and click on Create.
+
+http://<jenkins-server-public-ip>:8080/sonarqube-webhook/
+[image]
+
+Here, you can see the webhook.
+[image]
+
+Now, we have to create a Project for frontend code.
+
+Click on Manually.
+[image]
+
+Provide the display name to your Project and click on Setup
+[image]
+
+Click on Locally.
+[image]
+
+Select the Use existing token and click on Continue.
+[image]
+
+Select Other and Linux as OS.
+
+After performing the above steps, you will get the command which you can see in the below snippet.
+
+Now, use the command in the Jenkins Frontend Pipeline where Code Quality Analysis will be performed.
+[image]
+
+Now, we have to create a Project for backend code.
+
+Click on Create Project.
+[image]
+
+Provide the name of your project name and click on Set up.
+[image]
+
+
+Click on Locally.
+[image]
+
+Select the Use existing token and click on Continue.
+[image]
+
+Select Other and Linux as OS.
+
+After performing the above steps, you will get the command which you can see in the below snippet.
+
+Now, use the command in the Jenkins Backend Pipeline where Code Quality Analysis will be performed.
+[image]
+
+Now, we have to store the sonar credentials.
+
+Go to Dashboard -> Manage Jenkins -> Credentials
+
+Select the kind as Secret text paste your token in Secret and keep other things as it is.
+
+Click on Create
+[image]
+
+Now, we have to store the GitHub Personal access token to push the deployment file which will be modified in the pipeline itself for the ECR image.
+
+Add GitHub credentials
+
+Select the kind as Secret text and paste your GitHub Personal access token(not password) in Secret and keep other things as it is.
+
+Click on Create
+
+Note: If you haven’t generated your token then, you have it generated first then paste it into the Jenkins
+[image]
+
+Now, according to our Pipeline, we need to add an Account ID in the Jenkins credentials because of the ECR repo URI.
+
+Select the kind as Secret text paste your AWS Account ID in Secret and keep other things as it is.
+
+Click on Create
+[image]
+
+Now, we need to provide our ECR image name for frontend which is frontend only.
+
+Select the kind as Secret text paste your frontend repo name in Secret and keep other things as it is.
+
+Click on Create
+[image]
+
+Now, we need to provide our ECR image name for the backend which is backend only.
+
+Select the kind as Secret text, paste your backend repo name in Secret, and keep other things as it is.
+
+Click on Create
+[image]
+
+Final Snippet of all Credentials that we needed to implement this project.
+[image]
+
+### Step 10: Install the required plugins and configure the plugins to deploy our Three-Tier Application
+
+### Step 11: Set up the Monitoring for our EKS Cluster. We can monitor the Cluster Specifications and other necessary things.
+We will achieve the monitoring using Helm
+Add the prometheus repo by using the below command
+```
+helm repo add stable https://charts.helm.sh/stable
+```
+[image]
+
+Install the prometheus
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+[image]
+
+
+Now, check the service by the below command
+```
+kubectl get svc
+```
+[image]
+
+
+Now, we need to access our Prometheus and Grafana consoles from outside of the cluster.
+
+For that, we need to change the Service type from ClusterType to LoadBalancer
+
+Edit the stable-kube-prometheus-sta-prometheus service
+```
+kubectl edit svc stable-kube-prometheus-sta-prometheus
+```
+[image]
+
+
+Modification in the 48th line from ClusterType to LoadBalancer
+[image]
+
+Edit the stable-grafana service
+
+```
+kubectl edit svc stable-grafana
+```
+[image]
+
+Modification in the 39th line from ClusterType to LoadBalancer
+[image]
+
+Now, if you list again the service then, you will see the LoadBalancers DNS names
+```
+kubectl get svc
+```
+[image]
+
+You can also validate from AWS LB console.
+[image]
+
+Now, access your Prometheus Dashboard
+Paste the <Prometheus-LB-DNS>:9090 in your favorite browser and you will see like this
+[image]
+
+Click on Status and select Target.
+You will see a lot of Targets
+[image]
+
+
+Now, access your Grafana Dashboard
+Copy the ALB DNS of Grafana and paste it into your favorite browser.
+The username will be admin and the password will be prom-operator for your Grafana LogIn.
+[image]
+
+Now, click on Data Source
+[image]
+
+
+Select Prometheus
+[image]
+
+In the Connection, paste your <Prometheus-LB-DNS>:9090.
+[image]
+
+If the URL is correct, then you will see a green notification/
+Click on Save & test.
+[image]
+
+Now, we will create a dashboard to visualize our Kubernetes Cluster Logs.
+Click on Dashboard.
+[image]
+
+Once you click on Dashboard. You will see a lot of Kubernetes components monitoring.
+[image]
+
+Let’s try to import a type of Kubernetes Dashboard.
+Click on New and select Import
+[image]
+
+Provide 6417 ID and click on Load
+Note: 6417 is a unique ID from Grafana which is used to Monitor and visualize Kubernetes Data
+[image]
+
+Select the data source that you have created earlier and click on Import.
+[image]
+
+Here, you go.
+You can view your Kubernetes Cluster Data.
+Feel free to explore the other details of the Kubernetes Cluster.
+[image]
+
+
+
+### Step 12: Deploy Three-Tier Application using ArgoCD.
+
+As our repository is private. So, we need to configure the Private Repository in ArgoCD.
+Click on Settings and select Repositories
+[image]
+
+Click on CONNECT REPO USING HTTPS
+[image]
+
+Now, provide the repository name where your Manifests files are present.
+Provide the username and GitHub Personal Access token and click on CONNECT.
+[image]
+
+If your Connection Status is Successful it means repository connected successfully.
+[image]
+
+Now, we will create our first application which will be a database.
+Click on CREATE APPLICATION.
+[image]
+
+Provide the details as it is provided in the below snippet and scroll down.
+[image]
+
+Select the same repository that you configured in the earlier step.
+In the Path, provide the location where your Manifest files are presented and provide other things as shown in the below screenshot.
+Click on CREATE.
+[image]
+
+While your database Application is starting to deploy, We will create an application for the backend.
+Provide the details as it is provided in the below snippet and scroll down.
+[image]
+
+Select the same repository that you configured in the earlier step.
+In the Path, provide the location where your Manifest files are presented and provide other things as shown in the below screenshot.
+Click on CREATE.
+[image]
+
+While your backend Application is starting to deploy, We will create an application for the frontend.
+Provide the details as it is provided in the below snippet and scroll down.
+[image]
+
+Select the same repository that you configured in the earlier step.
+In the Path, provide the location where your Manifest files are presented and provide other things as shown in the below screenshot.
+Click on CREATE.
+[image]
+
+While your frontend Application is starting to deploy, We will create an application for the ingress.
+Provide the details as it is provided in the below snippet and scroll down.
+[image]
+
+Select the same repository that you configured in the earlier step.
+In the Path, provide the location where your Manifest files are presented and provide other things as shown in the below screenshot.
+Click on CREATE.
+[image]
+
+Once your Ingress application is deployed. It will create an Application Load Balancer
+You can check out the load balancer named with k8s-three.
+[image]
+
+Now, Copy the ALB-DNS and go to your Domain Provider in my case porkbun is the domain provider.
+Go to DNS and add a CNAME type with hostname backend then add your ALB in the Answer and click on Save
+Note: I have created a subdomain backend.cloudcorehub.com
+[image]
+
+You can see all 4 application deployments in the below snippet.
+[image]
+
+Now, hit your subdomain after 2 to 3 minutes in your browser to see the magic.
+[image]
+
+You can play with the application by adding the records.
+[image]
+
+You can play with the application by deleting the records.
+[image]
+
+Now, you can see your Grafana Dashboard to view the EKS data such as pods, namespace, deployments, etc.
+[image]
+
+If you want to monitor the three-tier namespace.
+In the namespace, replace three-tier with another namespace.
+You will see the deployments that are done by ArgoCD
+[image]
+
+This is the Ingress Application Deployment in ArgoCD
+[image]
+
+This is the Frontend Application Deployment in ArgoCD
+[image]
+
+This is the Backend Application Deployment in ArgoCD
+[image]
+
+This is the Database Application Deployment in ArgoCD
+[image]
+
+If you observe, we have configured the Persistent Volume & Persistent Volume Claim. So, if the pods get deleted then, the data won’t be lost. The Data will be stored on the host machine.
+To validate it, delete both Database pods.
+[image]
+
+Now, the new pods will be started.
+[image]
+
+And Your Application won’t lose a single piece of data.
+[image]
+
 
 ### Conclusion: 
+In this comprehensive DevSecOps Kubernetes project, we successfully:
+
+- Established IAM user and Terraform for AWS setup.
+- Deployed Jenkins on AWS, configured tools, and integrated it with Sonarqube.
+- Set up an EKS cluster, configured a Load Balancer, and established private ECR repositories.
+- Implemented monitoring with Helm, Prometheus, and Grafana.
+- Installed and configured ArgoCD for GitOps practices.
+- Created Jenkins pipelines for CI/CD, deploying a Three-Tier application.
+- Ensured data persistence with persistent volumes and claims.
+
+Stay connected on LinkedIn: LinkedIn Profile
+Stay up-to-date with GitHub: GitHub Profile
+Feel free to reach out to me, if you have any other queries.
+Happy Coding!
