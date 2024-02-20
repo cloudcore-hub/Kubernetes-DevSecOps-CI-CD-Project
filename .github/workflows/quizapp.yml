@@ -31,5 +31,5 @@ jobs:
       working-directory: ./backend
     - name: Test with pytest
       run: |
-        python -m pytest -vv --cov=backend/app backend/test_*.py  # Adjust path to test files if needed
+        python -m pytest -vv --cov=app test_*.py  # Adjust path to test files if needed
       working-directory: ./backend
