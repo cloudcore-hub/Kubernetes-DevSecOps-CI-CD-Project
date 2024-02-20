@@ -31,6 +31,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        python -m pytest -vv --cov=main backend/test_*.py  # Adjust path to test files if needed
+        python -m pytest -vv --cov=backend/app backend/test_*.py  # Adjust path to test files if needed
         working-directory: ./backend 
     
