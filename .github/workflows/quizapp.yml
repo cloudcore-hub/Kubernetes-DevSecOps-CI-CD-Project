@@ -43,3 +43,14 @@ jobs:
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKER_USERNAME }}/backend
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build and push frontend Docker image
+      working-directory: ./frontend
+      run: |
+        docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker push ${{ secrets.DOCKER_USERNAME }}/frontend
