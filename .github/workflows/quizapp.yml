@@ -32,13 +32,13 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pytest -vv --cov=app test_*.py  # Adjust path to test files if needed
-      working-directory: ./backend
+      working-directory: ./app_code/backend
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Build and push backend Docker image
-      working-directory: ./backend
+      working-directory: ./app_code/backend
       run: |
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
@@ -49,7 +49,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build and push frontend Docker image
-      working-directory: ./frontend
+      working-directory: ./app_code/frontend
       run: |
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
