@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>Quiz App</h1>
+        <div id="timer">Time left: 10</div>
+        <div id="question"></div>
+        <button id="true-button" style="display: none;">True</button>
+        <button id="false-button" style="display: none;">False</button>
+        <div id="feedback"></div>
+        <div id="score"></div>
+        <button id="start-button">Start Quiz</button>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

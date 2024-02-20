@@ -1,0 +1,141 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+}
+
+#quiz-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    width: 60%
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for better appearance */
+    overflow: hidden; /* Ensures the container doesn't grow based on content */
+}
+
+@media screen and (max-width: 600px) {
+    #quiz-container {
+        width: 90%; /* Adjust width for smaller screens */
+    }
+}
+
+#quiz-container h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#timer {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #888;
+}
+
+#question {
+    font-size: 20px;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+#true-button, #false-button {
+    padding: 15px 30px; /* Increase padding for a larger button */
+    width: auto; /* Adjust width as needed */
+    font-size: 20px; /* Increase font size for better visibility */
+    border-radius: 5px; /* Adjust for desired roundness */
+    cursor: pointer;
+    border: none;
+    color: black;
+}
+
+#true-button {
+    background-color: #4CAF50; /* Green */
+}
+
+#true-button:hover {
+    background-color: #45a049;
+}
+
+#false-button {
+    background-color: #f44336; /* Red */
+}
+
+#false-button:hover {
+    background-color: #d32f2f;
+}
+
+button {
+    background-color: #5C6BC0;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #3F51B5;
+}
+
+#feedback {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #0A0A0A;
+}
+
+#score {
+    font-size: 18px;
+    margin-top: 20px;
+    color: #8BC34A;
+}
+
+
+input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #DEB887;
+    color: white;
+}
