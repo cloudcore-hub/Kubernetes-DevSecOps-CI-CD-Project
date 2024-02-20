@@ -23,6 +23,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     scores = db.relationship('Score', backref='user', lazy=True)
+    is_admin = db.Column(db.Boolean, default=False)
 
 
 class Question(db.Model):
