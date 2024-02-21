@@ -12,8 +12,8 @@ app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a random secret k
 
 
 # MongoDB configuration
-mongo_client = MongoClient('mongodb://localhost:27017/')
-# mongo_client = MongoClient('mongodb://mongo:27017/quiz_database')  # Update with MongoDB URI
+# mongo_client = MongoClient('mongodb://localhost:27017/')
+mongo_client = MongoClient('mongodb://mongo:27017/quiz_database')  # Update with MongoDB URI
 mongo_db = mongo_client['quiz_database']
 users_collection = mongo_db['users']
 questions_collection = mongo_db['questions']

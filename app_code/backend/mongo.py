@@ -1,9 +1,9 @@
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
 
-client = MongoClient('mongodb://localhost:27017/')  # Local MongoDB connection string
+# client = MongoClient('mongodb://localhost:27017/')  # Local MongoDB connection string
 
-# client = MongoClient('mongodb://mongo:27017/')
+client = MongoClient('mongodb://mongo:27017/')
 
 db = client['quiz_database']
 questions_collection = db['questions']
