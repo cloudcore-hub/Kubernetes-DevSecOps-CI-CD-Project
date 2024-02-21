@@ -11,8 +11,8 @@ COPY . /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run mongo.py to initialize the database
-RUN python mongo.py
+# # Run mongo.py to initialize the database
+# RUN python mongo.py
 
 # Run app.py when the container launches
 CMD ["python", "app.py"]
