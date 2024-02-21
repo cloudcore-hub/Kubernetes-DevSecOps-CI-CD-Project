@@ -32,16 +32,42 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
 
-    - name: SonarQube Shellcheck
-      uses: sunilagarwal22-zz/sonarscanner-shell@2.0
+  sonarqube:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting.
+          fetch-depth: 0
 
-    - name: SonarQube Scan
-      run: sonar-scanner
-          -Dsonar.host.url=${{ secrets.SONAR_URL }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.sources=/app_code/backend
+      # Triggering SonarQube analysis as results of it are required by Quality Gate check.
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        id: sonarqube-quality-gate-check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        # Force to fail step after specific time.
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+
+    # - name: SonarQube Shellcheck
+    #   uses: sunilagarwal22-zz/sonarscanner-shell@2.0
+
+    # - name: SonarQube Scan
+    #   run: sonar-scanner
+    #        -Dsonar.host.url=${{ secrets.SONAR_URL }}
+    #        -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+    #        -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+    #        -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+    #        -Dsonar.sources=/app_code/backend
 
 
   deploy-backend:
