@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ "master" ]
 
+
 jobs:
   test:
 
@@ -29,8 +30,25 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
-  deploy-backend:
+
+
+  sonarcloud:
     needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
+  deploy-backend:
+    needs: sonarcloud
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
