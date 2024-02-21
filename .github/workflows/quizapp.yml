@@ -23,6 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest pytest-cov
         pip install -r app_code/backend/requirements.txt
+
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -42,6 +43,16 @@ jobs:
         fetch-depth: 0
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
+      with:
+        projectBaseDir: ./app_code/backend
+        args: >
+          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION}}
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
+          -Dsonar.python.coverage.reportPaths=coverage.xml
+          -Dsonar.sources=./app_code/backend
+          -Dsonar.test.exclusions=tests/**
+          -Dsonar.tests=tests/
+          -Dsonar.verbose=true
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
