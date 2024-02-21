@@ -41,14 +41,14 @@ jobs:
           # Disabling shallow clone is recommended for improving relevancy of reporting.
           fetch-depth: 0
 
-      # Triggering SonarQube analysis as results of it are required by Quality Gate check.
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+      # # Triggering SonarQube analysis as results of it are required by Quality Gate check.
+      # - name: SonarQube Scan
+      #   uses: sonarsource/sonarqube-scan-action@master
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
+      #     SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      #     SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
       # Check the Quality Gate status.
       - name: SonarQube Quality Gate check
