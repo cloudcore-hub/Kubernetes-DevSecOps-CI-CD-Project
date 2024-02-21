@@ -7,9 +7,6 @@ WORKDIR /app
 # Copy the backend directory contents into the container at /app
 COPY . /app
 
-# Copy the templates directory into the container at /app/templates
-COPY ./frontend/templates /app/templates
-
 # Install any needed packages specified in requirements.txt
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

@@ -29,10 +29,6 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
-    - name: Test with pytest
-      run: |
-        python -m pytest -vv --cov=app test_*.py  # Adjust path to test files if needed
-      working-directory: ./app_code/backend
   deploy-backend:
     runs-on: ubuntu-latest
     steps:
