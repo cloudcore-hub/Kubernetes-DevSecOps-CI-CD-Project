@@ -113,15 +113,22 @@ function resetTimer() {
 //    document.getElementById('question').innerText = `Congratulations! Your final score is ${score}. Thanks for taking the Quiz`;
 //}
 
+
 function showFinalScore(score) {
     // Save the final score to the database
     fetch('/finish_quiz', { method: 'POST' })
         .then(response => response.json())
-        .then(data => console.log(data.message))
+        .then(data => {
+            console.log(data.message);
+            // Display the final message
+            document.getElementById('question').innerText = `Congratulations! Your final score is ${score}. Thanks for taking the Quiz`;
+            hideQuizElements();
+            document.getElementById('feedback').innerText = '';
+            // Optionally, redirect to a different page or show a link
+            setTimeout(() => {
+                window.location.href = '/'; // Redirect to the home page or another appropriate page
+            }, 10000); // Redirect after 10 seconds
+        })
         .catch(error => console.error('Error:', error));
-
-    // Display the final message
-    document.getElementById('question').innerText = `Congratulations! Your final score is ${score}. Thanks for taking the Quiz`;
-    hideQuizElements();
-    document.getElementById('feedback').innerText = '';
 }
+

@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,9 +11,13 @@
 <body>
     <div class="container">
         <h1>Welcome to the Quiz App</h1>
-        <a href="{{ url_for('signup') }}">Sign Up</a> |
-        <a href="{{ url_for('login') }}">Login</a>
-<!--        <a href="{{ url_for('quiz') }}">Start Quiz</a>-->
+        <p>Test your bible knowledge with our fun quizzes!</p>
+        <div class="navigation-links">
+            <a href="{{ url_for('signup') }} " class="button-link">Sign Up</a>
+            <a href="{{ url_for('login') }}" class="button-link">Login</a>
+            <a href="{{ url_for('admin') }}" class="button-link">Admin Page</a>
+        </div>
+
     </div>
 </body>
 </html>

@@ -1,12 +1,9 @@
-# Use an official lightweight Nginx image
-FROM nginx:alpine
+# Use the official Apache HTTPD image
+FROM httpd:2.4
 
-# Copy static resources and templates
-COPY static /usr/share/nginx/html/static
-COPY templates /usr/share/nginx/html
+# Copy your frontend application files to the document root
+COPY ./static /usr/local/apache2/htdocs/static/
+COPY ./templates /usr/local/apache2/htdocs/
 
-# Expose port 80
+# The default port for Apache is 80
 EXPOSE 80
-
-# Start Nginx and keep it running
-CMD ["nginx", "-g", "daemon off;"]

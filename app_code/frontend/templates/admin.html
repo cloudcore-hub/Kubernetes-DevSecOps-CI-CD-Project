@@ -9,19 +9,22 @@
 </head>
 <body>
     <div class="container">
-        <h2>Admin Dashboard</h2>
-        <table>
+        <h1>Admin Dashboard</h1>
+        <h2>Quiz Scores</h2>
+        <table border="1">
             <thead>
                 <tr>
-                    <th>User</th>
+                    <th>User Email</th>
                     <th>Score</th>
+                    <th>Date</th>
                 </tr>
             </thead>
             <tbody>
-                {% for score in scores %}
+                {% for user_score in user_scores %}
                     <tr>
-                        <td>{{ score.user.username }}</td>
-                        <td>{{ score.score }}</td>
+                        <td>{{ user_score.email }}</td>
+                        <td>{{ user_score.score }}</td>
+                        <td>{{ user_score.quiz_date }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
