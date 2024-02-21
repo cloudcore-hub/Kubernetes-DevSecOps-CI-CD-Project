@@ -50,8 +50,6 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY}}
           -Dsonar.python.coverage.reportPaths=coverage.xml
           -Dsonar.sources=./app_code/backend
-          -Dsonar.test.exclusions=tests/**
-          -Dsonar.tests=tests/
           -Dsonar.verbose=true
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
