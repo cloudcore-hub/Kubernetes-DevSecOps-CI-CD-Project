@@ -31,6 +31,8 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
+      
+
 
   sonarqube:
     needs: test
@@ -40,6 +42,30 @@ jobs:
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting.
           fetch-depth: 0
+  
+    # Setup sonar-scanner
+    - name: Setup SonarQube
+      uses: warchant/setup-sonar-scanner@v7
+
+      # Run sonar-scanner
+    - name: SonarQube Scan
+      run: sonar-scanner
+         -Dsonar.host.url=${{ secrets.SONAR_URL }}
+         -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+         -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+         -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+         -Dsonar.sources=app_code/ 
+
+      # Check the Quality Gate status.
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      # Force to fail step after specific time.
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL
+        
 
       # # Triggering SonarQube analysis as results of it are required by Quality Gate check.
       # - name: SonarQube Scan
@@ -50,15 +76,15 @@ jobs:
       #     SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
       #     SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
 
-      # Check the Quality Gate status.
-      - name: SonarQube Quality Gate check
-        id: sonarqube-quality-gate-check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        # Force to fail step after specific time.
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL
+      # # Check the Quality Gate status.
+      # - name: SonarQube Quality Gate check
+      #   id: sonarqube-quality-gate-check
+      #   uses: sonarsource/sonarqube-quality-gate-action@master
+      #   # Force to fail step after specific time.
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL
 
 
   deploy-backend:
