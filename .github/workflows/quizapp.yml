@@ -36,6 +36,8 @@ jobs:
       uses: snyk/actions/python-3.10@master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        working-directory: ./app_code/backend
+      
 
     - name: Aqua Security Trivy
       uses: aquasecurity/trivy-action@0.17.0
