@@ -32,13 +32,14 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
       
-    #   # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
-    # - name: Set Java 11
-    #   uses: actions/setup-java@v3
-    #   with:
-    #      distribution: 'temurin' # See 'Supported distributions' for available options
-    #      java-version: '11'
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/python-3.10@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
+    - name: Aqua Security Trivy
+      uses: aquasecurity/trivy-action@0.17.0
+    
       # Setup sonar-scanner
     - name: Setup SonarQube
       uses: warchant/setup-sonar-scanner@v7
