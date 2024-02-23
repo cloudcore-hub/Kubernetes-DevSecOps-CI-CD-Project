@@ -31,9 +31,6 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
       working-directory: ./app_code/backend
-      
-    - name: Aqua Security Trivy
-      uses: aquasecurity/trivy-action@0.17.0
     
       # Setup sonar-scanner
     - name: Setup SonarQube
@@ -71,6 +68,17 @@ jobs:
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKER_USERNAME }}/backend
 
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'docker.io/${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'        
 
   deploy-frontend:
     needs: deploy-backend
@@ -83,3 +91,15 @@ jobs:
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
         docker push ${{ secrets.DOCKER_USERNAME }}/frontend
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'docker.io/${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+  
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif' 
