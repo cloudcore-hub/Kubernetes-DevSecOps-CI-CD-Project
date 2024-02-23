@@ -64,9 +64,9 @@ jobs:
     - name: Build and push backend Docker image
       working-directory: ./app_code/backend
       run: |
-        docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend
+        docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-        docker push ${{ secrets.DOCKER_USERNAME }}/backend
+        docker push ${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -88,9 +88,9 @@ jobs:
     - name: Build and push frontend Docker image
       working-directory: ./app_code/frontend
       run: |
-        docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend
+        docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-        docker push ${{ secrets.DOCKER_USERNAME }}/frontend
+        docker push ${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
