@@ -111,10 +111,10 @@ jobs:
           echo ${{ github.sha }}
 
           # Update Backend Image in Deployment Manifest
-          sed -i "s#${{ github.actor }}.*#${{ github.actor }}/backend:${{ github.sha }}#g" kubernetes-manifest/backend/deployment.yaml
+          sed -i "s#${{ secrets.DOCKER_USERNAME }}.*#${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}#g" kubernetes-manifest/backend/deployment.yaml
 
           # Update Frontend Image in Deployment Manifest
-          sed -i "s#${{ github.actor }}.*#${{ github.actor }}/frontend:${{ github.sha }}#g" kubernetes-manifest/frontend/deployment.yaml
+          sed -i "s#${{ secrets.DOCKER_USERNAME }}.*#${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}#g" kubernetes-manifest/frontend/deployment.yaml
           git add -A
           git commit -am "Update image for - ${{ github.sha }}"
       - run: echo ${{ github }}
