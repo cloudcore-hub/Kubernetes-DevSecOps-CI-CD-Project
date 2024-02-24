@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
+import os 
 
 # client = MongoClient('mongodb://localhost:27017/')  # Local MongoDB connection string
 
@@ -11,7 +12,6 @@ questions_collection = db['questions']
 # Clear existing data
 questions_collection.delete_many({})
 
-# ... include all your question data here ...
 # Provided quiz data
 question_data = [
   {
@@ -293,10 +293,12 @@ example_user = {
 users_collection.insert_one(example_user)
 print("Example user inserted successfully.")
 
+mongo_username = os.getenv('MONGO_USERNAME')
+mongo_password = os.getenv('MONGO_PASSWORD')
 
 admin_user = {
-    "email": "admin@email.com",
-    "password": generate_password_hash("admin"),
+    "email": mongo_username,
+    "password": generate_password_hash(mongo_password),
     "is_admin": True
 }
 

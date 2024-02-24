@@ -95,4 +95,23 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'
   
-  
+  update-manifest-files:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project
+          ref: 'master'
+          token: ${{ secrets.PAT_GITHUB_TOKEN}}
+      - name: setup git config
+        run: |
+          git config --global user.email "${{ secrets.GIT_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_USERNAME }}"
+          echo ${{ github.sha }}
+          sed -i "s#${{ github.actor }}.*#${{ github.actor }}/backend:${{ github.sha }}#g" ./kubernetes-manifest/backend/deployment.yaml
+          sed -i "s#${{ github.actor }}.*#${{ github.actor }}/frontend:${{ github.sha }}#g" ./kubernetes-manifest/frontend/deployment.yaml
+          git add -A
+          git commit -am "Update image for - ${{ github.sha }}"
+      - run: echo ${{ github }}
+      - run: git push origin master
