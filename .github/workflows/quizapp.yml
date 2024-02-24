@@ -109,7 +109,11 @@ jobs:
           git config --global user.email "${{ secrets.GIT_EMAIL }}"
           git config --global user.name "${{ secrets.GIT_USERNAME }}"
           echo ${{ github.sha }}
+
+          # Update Backend Image in Deployment Manifest
           sed -i "s#${{ github.actor }}.*#${{ github.actor }}/backend:${{ github.sha }}#g" kubernetes-manifest/backend/deployment.yaml
+
+          # Update Frontend Image in Deployment Manifest
           sed -i "s#${{ github.actor }}.*#${{ github.actor }}/frontend:${{ github.sha }}#g" kubernetes-manifest/frontend/deployment.yaml
           git add -A
           git commit -am "Update image for - ${{ github.sha }}"

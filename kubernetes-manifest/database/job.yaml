@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongo-init-job
+  namespace: quiz-app
+spec:
+  template:
+    spec:
+      containers:
+        - name: mongo-init
+          image: python:3.11
+          command:
+            - python
+            - /scripts/mongo.py
+          volumeMounts:
+            - name: mongo-script
+              mountPath: /scripts
+          env:
+            - name: MONGO_CONN_STR
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-uri
+      volumes:
+        - name: mongo-script
+          configMap:
+            name: mongo-script-configmap
+      restartPolicy: Never
+  backoffLimit: 4
