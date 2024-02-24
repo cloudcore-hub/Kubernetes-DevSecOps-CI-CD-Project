@@ -57,7 +57,7 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_URL }} #OPTIONAL
 
 
-  deploy-backend:
+  build-backend:
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -76,8 +76,8 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'       
 
-  deploy-frontend:
-    needs: deploy-backend
+  build-frontend:
+    needs: build-backend
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
