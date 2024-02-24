@@ -4,16 +4,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 import datetime
+import os 
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
 # # Configuring the mongo database
 app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a random secret key
 
+mongo_uri = os.getenv('MONGO_CONN_STR', 'default-mongo-uri')
+mongo_username = os.getenv('MONGO_USERNAME')
+mongo_password = os.getenv('MONGO_PASSWORD')
 
 # MongoDB configuration
 # mongo_client = MongoClient('mongodb://localhost:27017/')
-mongo_client = MongoClient('mongodb://mongo:27017/quiz_database')  # Update with MongoDB URI
+# mongo_client = MongoClient('mongodb://mongo:27017/quiz_database')  # Update with MongoDB URI
+mongo_client = MongoClient(mongo_uri)
 mongo_db = mongo_client['quiz_database']
 users_collection = mongo_db['users']
 questions_collection = mongo_db['questions']

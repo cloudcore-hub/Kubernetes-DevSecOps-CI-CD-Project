@@ -461,6 +461,11 @@ Final Snippet of all Credentials that we needed to implement this project.
 
 ### Step 10: Install the required plugins and configure the plugins to deploy our Three-Tier Application
 
+encoding all the secrets in your secret.yaml file using:
+```
+echo -n 'secret-to-encode' | base64
+```
+
 ### Step 11: Set up the Monitoring for our EKS Cluster. We can monitor the Cluster Specifications and other necessary things.
 We will achieve the monitoring using Helm
 Add the prometheus repo by using the below command
