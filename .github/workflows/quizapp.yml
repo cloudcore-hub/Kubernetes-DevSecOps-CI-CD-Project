@@ -15,7 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.11
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5.0.0
+
       with:
         python-version: "3.11"
     - name: Install dependencies
@@ -34,7 +35,7 @@ jobs:
     
       # Setup sonar-scanner
     - name: Setup SonarQube
-      uses: warchant/setup-sonar-scanner@v7
+      uses: warchant/setup-sonar-scanner@v8
 
       # Run sonar-scanner
     - name: SonarQube Scan
