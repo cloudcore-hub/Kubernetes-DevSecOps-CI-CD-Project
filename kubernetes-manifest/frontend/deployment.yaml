@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
       - name: frontend-image
-        image: ogochukwuozotta/frontend:86c5757e23888d89cbe8349aa2791cfe8e0e7193
+        image: ogochukwuozotta/frontend:412c40340d2587bf1e32985de3744c15ed8e8772
         ports:
         - containerPort: 80
