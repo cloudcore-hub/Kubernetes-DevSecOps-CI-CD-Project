@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: backend-image
-          image: ogochukwuozotta/backend:9c32ac766b1a1bc23c50ad189b11a9d326a354a4
+          image: ogochukwuozotta/backend:f14476ebf37f189b3064768c478fa88e6854ec06
           imagePullPolicy: Always
           env:
             - name: MONGO_CONN_STR
