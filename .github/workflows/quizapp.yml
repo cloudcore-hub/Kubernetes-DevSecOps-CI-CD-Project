@@ -77,7 +77,7 @@ jobs:
         output: 'trivy-results.sarif'       
 
   build-frontend:
-    needs: build-backend
+    needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -96,7 +96,7 @@ jobs:
         output: 'trivy-results.sarif'
   
   update-manifest-files:
-    needs: build-frontend
+    needs: [build-frontend, build-backend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
