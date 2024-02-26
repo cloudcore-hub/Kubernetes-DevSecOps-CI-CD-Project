@@ -113,6 +113,6 @@ jobs:
           # Update Frontend Image in Deployment Manifest
           sed -i "s#${{ secrets.DOCKER_USERNAME }}.*#${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}#g" kubernetes-manifest/frontend/deployment.yaml
           git add -A
-          git commit -am "Update image for - ${{ github.sha }}"
+          git commit -am "Update image for - ${{ github.sha }} [skip ci]"
       - run: echo ${{ github }}
       - run: git push origin master
