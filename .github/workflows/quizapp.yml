@@ -41,7 +41,7 @@ jobs:
          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-         -Dsonar.sources=app_code/  
+         -Dsonar.sources=app_code/backend
 
       # Check the Quality Gate status.
     - name: SonarQube Quality Gate check
