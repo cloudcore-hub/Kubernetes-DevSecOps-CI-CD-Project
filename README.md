@@ -41,10 +41,98 @@ Before starting the project, ensure you have the following prerequisites:
 
 - An AWS account with the necessary permissions to create resources.
 - Terraform and AWS CLI installed on your local machine.
-- Basic familiarity with Kubernetes, Docker, Jenkins, and DevOps principles.
+- Basic familiarity with Kubernetes, Docker, Github Actions, Terraform, and DevOps principles.
 
-### Step 1: Create an IAM user and generate the AWS Access key
-Create a new IAM User on AWS and give it to the AdministratorAccess for testing purposes (not recommended for your Organization's Projects)
+### Step 1: SSH Exchange between local computer and Github account
+`cd` to home dir and create .ssh/ folder if it doesn't exist 
+
+```
+cd ~/.ssh
+ssh-keygen
+```
+Give the key a name `key`. List `ls` the content of .ssh/ folder.
+Copy the content of the public key
+```
+cat key.pub
+```
+
+Go to the Settings of your Github account from profile section.
+Go to Access Section on the left `SSH and GPG Keys` and `New SSH key`. Give a title and paste the content of key.pub
+
+Back to the computer terminal and run the command
+```
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/key"
+```
+Create a project folder in your `Desktop` or anywhere you'd prefer
+
+```
+mkdir ~/Desktop/project && cd ~/Desktop/project
+```
+#### Git Clone the application code and IaC repositories 
+```
+git clone https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project.git
+git clone https://github.com/cloudcore-hub/iac_code.git
+```
+```
+cd iac_code
+git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
+```
+```
+cd ..
+cd Kubernetes-DevSecOps-CI-CD-Project
+git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
+```
+#### Connect the repository to your Github
+
+1. **Create a New Repository on GitHub:**
+   - Go to GitHub and sign in.
+   - Go to your profile and open Your repositories
+   - Click the `New` icon in the top-right corner to create new repository.
+   - Name your repository `iac_code`, set it to public or private, and click "Create repository."
+
+2. **Change the Remote URL of Your Local Repository:**
+   - Open your terminal and navigate to the root directory of your local repository.
+   - Check the current remote URL with:
+     ```
+     cd iac_code
+     git remote -v
+     ```
+   - Change the remote URL to your newly created repository with:
+     ```
+     git remote set-url origin <YOUR_NEW_REPOSITORY_URL>
+     ```
+     Replace `YOUR_NEW_REPOSITORY_URL` with the URL of your new GitHub repository, like `https://github.com/yourusername/yourrepositoryname.git`.
+
+3. **Push Your Code to the New Repository:**
+   - Ensure all your changes are committed. If you have uncommitted changes, add them using:
+     ```
+     git add .
+     ```
+   - Commit the changes with:
+     ```
+     git commit -m "Initial commit"
+     ```
+   - Push the code to your new repository with:
+     ```
+     git push -u origin master
+     ```
+     If your main branch is named differently (e.g., `main`), replace `master` with the correct branch name.
+
+4. **Verify the Push:**
+   - Refresh the GitHub page of your repository to see if the code has been pushed successfully.
+
+5. **Repeat for the second repo:**  
+You can name the second repo `app_code` for simplicity
+When done, run the following command in your terminal
+
+```
+git config --global user.name <github user name>
+git config --global user.email <github email>
+```
+
+### Step 2: CREATE AWS Resources
+#### Create an IAM user and generate the AWS Access key
+Create a new IAM User on AWS and give it the AdministratorAccess for testing purposes (not recommended for your Organization's Projects)
 Go to the AWS IAM Service and click on Users.
 [image]
 Click on Create user
@@ -61,22 +149,54 @@ Click on the Next.
 Click on Create user
 
 [image]
-Now, Select your created user then click on Security credentials and generate access key by clicking on Create access key.
+Now, Select your created user then click on `Security credentials` and generate access key by clicking on Create access key.
 [image]
 
-Select the Command Line Interface (CLI) then select the checkmark for the confirmation and click on Next.
+Select the `Command Line Interface (CLI)` then select the checkmark for the confirmation and click on Next.
 [image]
 
 Provide the Description and click on the Create access key.
 [image]
 
-Here, you will see that you got the credentials and also you can download the CSV file for the future.
+Here, you will see that you got the credentials and also you can download the CSV file for the future. Copy the Access Key ID and the Access Secret Key
 [image]
 
-### Step 2: Install Terraform & AWS CLI to deploy our Jenkins Server(EC2) on AWS.
-Install & Configure Terraform and AWS CLI on your local machine to create Jenkins Server on AWS Cloud
+#### Create Github Repo Secret for iac_code
+1. **Navigate to Your GitHub Repository:**
+   - Find and click on the iac_code repository where you want to add a secret.
 
-#### Terraform Installation Script 
+2. **Access the Repository Settings:**
+   - Click on the "Settings" tab near the top of the repository page.
+
+3. **Open the Secrets Section:**
+   - On the left sidebar, click on "Secrets and variables."
+   - Then select "Actions" to add a secret available to GitHub Actions.
+
+4. **Add a New Secret:**
+   - Click on the "New repository secret" button.
+   - Enter the name of your secret in the "Name" field. Use `AWS_ACCESS_KEY_ID`.
+   - Enter the value of your secret in the "Value" field. 
+
+5. **Save the Secret:**
+   - Click the "Add secret" button to save your new secret.
+   - The secret is now stored securely and can be accessed in GitHub Actions workflows using the `${{ secrets.AWS_ACCESS_KEY_ID }}` syntax, where `AWS_ACCESS_KEY_ID` is the name you gave your secret. Do same for the `AWS_SECRET_ACCESS_KEY`, add the Secret and save
+
+6. **Repeat 1-5 for app_code repo:**
+
+#### Create S3 Bucket for Terraform State files 
+Create S3 bucket for the terraform state file. Add the bucket name in the iac_code repo secret. Name: `BUCKET_TF_STATE`, Value: `<your-bucket-name>`
+
+#### Copy AWS Account ID
+Copy the account ID of your AWS Account. Add your AWS Account ID in the iac_code repo secret. Name: `AWS_ACCOUNT_ID`
+
+#### Create key pair 
+Create key pair for SSHing into the jumphost in .pem format and download it in your local machine
+
+
+### Step 3: Install Terraform & AWS CLI .
+Install & Configure Terraform and AWS CLI on your local machine 
+
+#### Terraform Installation Script for WSL
 ```
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg - dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
@@ -93,75 +213,55 @@ sudo ./aws/install
 ```
 Now, Configure both the tools
 
-#### Configure Terraform
-
-Edit the file /etc/environment using the below command add the highlighted lines and add your keys in the blur space.
-
-`sudo vim /etc/environment`
-[image]
-
-After doing the changes, restart your machine to reflect the changes of your environment variables.
+#### Terraform and AWSCLI Installation on MacOS
+```
+brew install terraform
+brew install awscli
+```
 
 #### Configure AWS CLI
 
-Run the below command, and add your keys
+Run the below command, and add your keys from Step 2
 
 `aws configure`
 [image]
 
-### Step 3: Deploy the Jenkins Server(EC2) using Terraform
-Clone the Git repository https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/
+### Step 4: Deploy the Jumphost Server(EC2) and EKS using Terraform on Github Actions
+```
+cd ~/Desktop/project/iac_code
+```
+Open the folder in Visual Studio Code or any Text Editor 
+Navigate to the terraform folder
 
-`git clone https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project`
-
-Navigate to the Jenkins-Server-TF
-
-Do some modifications to the backend.tf file such as changing the bucket name and dynamodb table(make sure you have created both manually on AWS Cloud).
-
-[image]
-
-Now, you have to replace the Pem File name as you have some other name for your Pem file. To provide the Pem file name that is already created on AWS
-[image]
-
-Initialize the backend by running the below command
-`terraform init`
+Do some modifications to the `terraform.tf` file such as changing the bucket name (make sure you have created the manually on AWS Cloud). 
 
 [image]
 
-Run the below command to check the syntax error
-
-`terraform validate`
-
+Now, in the `variables.tf` you can change the `region`, `clusterName`, `ami_id`, `instance_type`, but you must replace the `instance_keypair` with the Pem File name as you have for your Pem file. Provide the Pem file name that is already created on AWS.
 [image]
 
-Run the below command to get the blueprint of what kind of AWS services will be created.
+Review `.github/workflows/terraform.yml`
 
-`terraform plan -var-file=variables.tfvars`
+```
+git commit -m "updated terraform files"
+git push
+```
+With the couple of changed made in the terraform/ folder. 
+Github Actions workflow will be trigger. This will take 10-20minutes to deploy the infrastructure
 
-[image]
-
-Now, run the below command to create the infrastructure on AWS Cloud which will take 3 to 4 minutes maximum
-
-`terraform apply -var-file=variables.tfvars --auto-approve`
-
-[image]
-
-Now, connect to your Jenkins-Server by clicking on Connect.
+Go to the EC2 on AWS Console
+Now, connect to your Jumphost-Server by clicking on Connect.
 [image]
 
 Copy the ssh command and paste it on your local machine.
 [image]
 
 
-### Step 4: Configure the Jenkins
-Now, we logged into our Jenkins server.
-[image]
-
-We have installed some services such as Jenkins, Docker, Sonarqube, Terraform, Kubectl, AWS CLI, and Trivy.
+### Step 5: Configure the Jumphost
+We have installed some services such as Docker, Terraform, Kubectl, eksctl, AWSCLI, Trivy, Helm, ArgoCD, Prometheus, Grafana
 
 Let’s validate whether all our tools are installed or not.
 ```
-jenkins --version
 docker --version
 docker ps
 terraform --version
@@ -173,47 +273,10 @@ eksctl --version
 
 [image]
 
-### Step 5: Deploy the EKS Cluster using eksctl commands
-Now, go back to your Jenkins Server terminal and configure the AWS.
-[image]
-
-Create an eks cluster using the below commands.
+#### Create Service Account 
 ```
-eksctl create cluster --name Three-Tier-K8s-EKS-Cluster --region us-east-1 --node-type t2.medium --nodes-min 2 --nodes-max 2
-aws eks update-kubeconfig --region us-east-1 --name Three-Tier-K8s-EKS-Cluster
+eksctl create iamserviceaccount --cluster=quizapp-eks --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_aws_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
 ```
-
-Once your cluster is created, you can validate whether your nodes are ready or not by the below command
-
-kubectl get nodes
-[image]
-
-
-### Step 6: configure the Load Balancer on our EKS because our application will have an ingress controller.
-Download the policy for the LoadBalancer prerequisite.
-```
-curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
-```
-
-[image]
-
-Create the IAM policy using the below command
-```
-aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.
-```
-[image]
-
-Create OIDC Provider
-```
-eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=Three-Tier-K8s-EKS-Cluster --approve
-```
-[image]
-
-Create Service Account
-```
-eksctl create iamserviceaccount --cluster=Three-Tier-K8s-EKS-Cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
-```
-[image]
 
 Run the below command to deploy the AWS Load Balancer Controller
 
@@ -221,71 +284,111 @@ Run the below command to deploy the AWS Load Balancer Controller
 sudo snap install helm --classic
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update eks
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=my-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=quizapp-eks --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 ```
 
-After 2 minutes, run the command below to check whether your pods are running or not.
+Wait for 2 minutes and run the following command below to check whether aws-load-balancer-controller pods are running or not.
 ```
 kubectl get deployment -n kube-system aws-load-balancer-controller
 ```
 [image]
 
 
-### Step 7: Create Amazon ECR Private Repositories for both Tiers (Frontend & Backend)
+
+
+### Step 6: Create Docker Repositories for both Frontend & Backend
+Sign in into your Dockerhub Account
 Click on Create repository
 [image]
 
-Select the Private option to provide the repository and click on Save.
+Select the Public option and provide the name `<backend>` for the repository and click on Create.
+
+Click on Create repository again
+Select the Public option and provide the name `<frontend>` for the repository and click on Create.
+[image]
+ 
+#### Create Docker Secret
+Go to Dockerhub page, click on your profile and select My Account.
+Then go to Security and click on New Access Token. Give it a name in the Access Token Description and Generate. Copy the token and add to `app_code` repo secrets, name it `DOCKER_PASSWORD` and paste the docker generated token. Also add another secret name it `DOCKER_USERNAME` and paste your dockerhub account username
+
+
+
+### Step 7: Configure Sonar Cloud for our app_code Pipeline
+Sonar cloud will be using for Code Quality Analysis of our application code.
+Go to `sonarcloud.io` login with your github account. 
+Click on + sign on the top right corner
+
+Create New Organization
+
+Create an Organization
+
+Enter a name and key, choose the free plan 
+
+Create Organization
+
+Click om `Analyze a new project`
+Enter the values in the image below
 [image]
 
-Do the same for the backend repository and click on Save
-[image]
+Next.
+Previous version
 
-Now, we have set up our ECR Private Repository and
-[image]
+Click on profile
 
-Now, we need to configure ECR locally because we have to upload our images to Amazon ECR.
+My account
 
-Copy the 1st command for login
-[image]
+Security
 
-Now, run the copied command on your Jenkins Server.
-[image]
+Generate Tokens 
+
+Give it a name 
+
+`Generate Token`
+
+Copy this token to Github app_code repository secret
+Name: SONAR_TOKEN
+secret: paste the sonarcloud token
+
+Add another secret
+Name: SONAR_ORGANIZATION
+secret: enter your sonar cloud organization name created above 
+
+Add another secret
+Name: SONAR_PROJECT_KEY
+secret: enter your sonar cloud project key
+
+Add another secret
+Name: SONAR_URL
+secret: https://sonarcloud.io
 
 
+### Step 8: Review and Deploy Application Code
+Review the app_code repo.
+In your local terminal 
+cd ~/Desktop/project/Kubernetes-DevSecOps-CI-CD-Project
+Open the folder in Visual Studio Code
 
-### Step 8: Install & Configure ArgoCD
-We will be deploying our application on a three-tier namespace. To do that, we will create a three-tier namespace on EKS
+Update the kubernetes-manifest/ingress.yaml file with your DNS
+Review .github/workflows/quizapp.yml file
 
 ```
-kubectl create namespace three-tier
+git commit -m "updated manifest files"
+git push
+```
+
+### Step 9: Configure ArgoCD
+Confirm the namespaces created on the EKS Cluster
+
+```
+kubectl get namespaces
+```
+or 
+```
+kubectl get ns
 ```
 [image]
 
-As you know, Our two ECR repositories are private. So, when we try to push images to the ECR Repos it will give us the error Imagepullerror.
-
-To get rid of this error, we will create a secret for our ECR Repo by the below command and then, we will add this secret to the deployment file.
-
-Note: The Secrets are coming from the .docker/config.json file which is created while login the ECR in the earlier steps
-
-```
-kubectl create secret generic ecr-registry-secret \
-  --from-file=.dockerconfigjson=${HOME}/.docker/config.json \
-  --type=kubernetes.io/dockerconfigjson --namespace three-tier
-kubectl get secrets -n three-tier
-```
-[image]
-
-Now, we will install argoCD.
-
-To do that, create a separate namespace for it and apply the argocd configuration for installation.
-
-```
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.7/manifests/install.yaml
-```
-[image]
-
+To confirm argoCD pods are running.
 All pods must be running, to validate run the below command
 ```
 kubectl get pods -n argocd
@@ -301,7 +404,7 @@ kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}
 You can validate whether the Load Balancer is created or not by going to the AWS Console
 [image]
 
-To access the argoCD, copy the LoadBalancer DNS and hit on your favorite browser.
+To access the argoCD, copy the LoadBalancer DNS and hit on your browser.
 
 You will get a warning like the below snippet.
 
@@ -313,7 +416,7 @@ Click on the below link which is appearing under Hide advanced
 
 Now, we need to get the password for our argoCD server to perform the deployment.
 
-To do that, we have a pre-requisite which is jq. Install it by the command below.
+To do that, we need a pre-requisite which is jq. This has already been Installed or you can install it using the command below.
 ```
 sudo apt install jq -y
 ```
@@ -333,155 +436,12 @@ Here is our ArgoCD Dashboard.
 [image]
 
 
-### Step 9: Configure Sonarqube for our DevSecOps Pipeline
-To do that, copy your Jenkins Server public IP and paste it on your favorite browser with a 9000 port
 
-The username and password will be admin
+### Step 10: Set up the Monitoring for our EKS Cluster using Prometheus and Grafana. 
+We can monitor the Cluster Specifications and other necessary things.
+Prometheus and Grafana has already been installed in our jumphost server.
 
-Click on Log In.
-[image]
-
-Update the password
-[image]
-
-Click on Administration then Security, and select Users
-[image]
-
-Click on Update tokens
-[image]
-
-Click on Generate
-[image]
-
-Copy the token keep it somewhere safe and click on Done.
-[image]
-
-Now, we have to configure webhooks for quality checks.
-
-Click on Administration then, Configuration and select Webhooks
-[image]
-
-Click on Create
-[image]
-
-Provide the name of your project and in the URL, provide the Jenkins server public IP with port 8080 add sonarqube-webhook in the suffix, and click on Create.
-
-http://<jenkins-server-public-ip>:8080/sonarqube-webhook/
-[image]
-
-Here, you can see the webhook.
-[image]
-
-Now, we have to create a Project for frontend code.
-
-Click on Manually.
-[image]
-
-Provide the display name to your Project and click on Setup
-[image]
-
-Click on Locally.
-[image]
-
-Select the Use existing token and click on Continue.
-[image]
-
-Select Other and Linux as OS.
-
-After performing the above steps, you will get the command which you can see in the below snippet.
-
-Now, use the command in the Jenkins Frontend Pipeline where Code Quality Analysis will be performed.
-[image]
-
-Now, we have to create a Project for backend code.
-
-Click on Create Project.
-[image]
-
-Provide the name of your project name and click on Set up.
-[image]
-
-
-Click on Locally.
-[image]
-
-Select the Use existing token and click on Continue.
-[image]
-
-Select Other and Linux as OS.
-
-After performing the above steps, you will get the command which you can see in the below snippet.
-
-Now, use the command in the Jenkins Backend Pipeline where Code Quality Analysis will be performed.
-[image]
-
-Now, we have to store the sonar credentials.
-
-Go to Dashboard -> Manage Jenkins -> Credentials
-
-Select the kind as Secret text paste your token in Secret and keep other things as it is.
-
-Click on Create
-[image]
-
-Now, we have to store the GitHub Personal access token to push the deployment file which will be modified in the pipeline itself for the ECR image.
-
-Add GitHub credentials
-
-Select the kind as Secret text and paste your GitHub Personal access token(not password) in Secret and keep other things as it is.
-
-Click on Create
-
-Note: If you haven’t generated your token then, you have it generated first then paste it into the Jenkins
-[image]
-
-Now, according to our Pipeline, we need to add an Account ID in the Jenkins credentials because of the ECR repo URI.
-
-Select the kind as Secret text paste your AWS Account ID in Secret and keep other things as it is.
-
-Click on Create
-[image]
-
-Now, we need to provide our ECR image name for frontend which is frontend only.
-
-Select the kind as Secret text paste your frontend repo name in Secret and keep other things as it is.
-
-Click on Create
-[image]
-
-Now, we need to provide our ECR image name for the backend which is backend only.
-
-Select the kind as Secret text, paste your backend repo name in Secret, and keep other things as it is.
-
-Click on Create
-[image]
-
-Final Snippet of all Credentials that we needed to implement this project.
-[image]
-
-### Step 10: Install the required plugins and configure the plugins to deploy our Three-Tier Application
-
-encoding all the secrets in your secret.yaml file using:
-```
-echo -n 'secret-to-encode' | base64
-```
-
-### Step 11: Set up the Monitoring for our EKS Cluster. We can monitor the Cluster Specifications and other necessary things.
-We will achieve the monitoring using Helm
-Add the prometheus repo by using the below command
-```
-helm repo add stable https://charts.helm.sh/stable
-```
-[image]
-
-Install the prometheus
-```
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-```
-[image]
-
-
-Now, check the service by the below command
+Now, confirm the service by the below command
 ```
 kubectl get svc
 ```
@@ -522,7 +482,7 @@ You can also validate from AWS LB console.
 [image]
 
 Now, access your Prometheus Dashboard
-Paste the <Prometheus-LB-DNS>:9090 in your favorite browser and you will see like this
+Paste the <Prometheus-LB-DNS>:9090 in your browser and you will see somwthing like this
 [image]
 
 Click on Status and select Target.
@@ -531,7 +491,7 @@ You will see a lot of Targets
 
 
 Now, access your Grafana Dashboard
-Copy the ALB DNS of Grafana and paste it into your favorite browser.
+Copy the ALB DNS of Grafana and paste it into your browser.
 The username will be admin and the password will be prom-operator for your Grafana LogIn.
 [image]
 
@@ -574,9 +534,9 @@ Feel free to explore the other details of the Kubernetes Cluster.
 
 
 
-### Step 12: Deploy Three-Tier Application using ArgoCD.
+### Step 11: Deploy Quiz Application using ArgoCD.
 
-As our repository is private. So, we need to configure the Private Repository in ArgoCD.
+Configure the app_code github repository in ArgoCD.
 Click on Settings and select Repositories
 [image]
 
@@ -602,7 +562,7 @@ In the Path, provide the location where your Manifest files are presented and pr
 Click on CREATE.
 [image]
 
-While your database Application is starting to deploy, We will create an application for the backend.
+While your database Application is starting to deploy, create an application for the backend.
 Provide the details as it is provided in the below snippet and scroll down.
 [image]
 
@@ -611,7 +571,7 @@ In the Path, provide the location where your Manifest files are presented and pr
 Click on CREATE.
 [image]
 
-While your backend Application is starting to deploy, We will create an application for the frontend.
+While your backend Application is starting to deploy, create an application for the frontend.
 Provide the details as it is provided in the below snippet and scroll down.
 [image]
 
@@ -620,7 +580,7 @@ In the Path, provide the location where your Manifest files are presented and pr
 Click on CREATE.
 [image]
 
-While your frontend Application is starting to deploy, We will create an application for the ingress.
+While your frontend Application is starting to deploy, create an application for the ingress.
 Provide the details as it is provided in the below snippet and scroll down.
 [image]
 
@@ -633,9 +593,10 @@ Once your Ingress application is deployed. It will create an Application Load Ba
 You can check out the load balancer named with k8s-three.
 [image]
 
-Now, Copy the ALB-DNS and go to your Domain Provider in my case porkbun is the domain provider.
+Now, Copy the ALB-DNS and go to your Domain Provider in my case AWS Route 53 is the domain provider.
+
 Go to DNS and add a CNAME type with hostname backend then add your ALB in the Answer and click on Save
-Note: I have created a subdomain backend.cloudcorehub.com
+Note: I have created a subdomain backend.devopsogo.com
 [image]
 
 You can see all 4 application deployments in the below snippet.
@@ -644,17 +605,15 @@ You can see all 4 application deployments in the below snippet.
 Now, hit your subdomain after 2 to 3 minutes in your browser to see the magic.
 [image]
 
-You can play with the application by adding the records.
+You can play with the application by playing the quiz.
 [image]
 
-You can play with the application by deleting the records.
-[image]
 
 Now, you can see your Grafana Dashboard to view the EKS data such as pods, namespace, deployments, etc.
 [image]
 
-If you want to monitor the three-tier namespace.
-In the namespace, replace three-tier with another namespace.
+If you want to monitor the quiz-app namespace.
+In the namespace, replace quiz-app with another namespace.
 You will see the deployments that are done by ArgoCD
 [image]
 
@@ -685,11 +644,11 @@ And Your Application won’t lose a single piece of data.
 In this comprehensive DevSecOps Kubernetes project, we successfully:
 
 - Established IAM user and Terraform for AWS setup.
-- Deployed Jenkins on AWS, configured tools, and integrated it with Sonarqube.
-- Set up an EKS cluster, configured a Load Balancer, and established private ECR repositories.
+- Deployed Infrastructure on AWS using Github Actions and Terraform and, configured tools.
+- Set up an EKS cluster, and configured a Load Balancer.
 - Implemented monitoring with Helm, Prometheus, and Grafana.
 - Installed and configured ArgoCD for GitOps practices.
-- Created Jenkins pipelines for CI/CD, deploying a Three-Tier application.
+- Created Github Action pipelines for CI/CD, deploying a three-tier architecture application.
 - Ensured data persistence with persistent volumes and claims.
 
 Stay connected on LinkedIn: LinkedIn Profile
