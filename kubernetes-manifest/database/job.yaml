@@ -12,7 +12,7 @@ spec:
           command: ["/bin/sh","-c"]
           args: 
             - |
-              pip install pymongo &&
+              pip install pymongo werkzeug &&
               python /scripts/mongo.py
           volumeMounts:
             - name: mongo-script
