@@ -24,7 +24,7 @@ function startQuiz() {
 }
 
 function getQuestion() {
-    fetch('/get_question')
+    fetch('/api/get_question')
         .then(response => response.json())
         .then(data => {
             if (data.finished) {
@@ -59,7 +59,7 @@ function hideQuizElements() {
 
 function checkAnswer(answer) {
     stopTimer();
-    fetch('/check_answer', {
+    fetch('/api/check_answer', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ function resetTimer() {
 
 function showFinalScore(score) {
     // Save the final score to the database
-    fetch('/finish_quiz', { method: 'POST' })
+    fetch('/api/finish_quiz', { method: 'POST' })
         .then(response => response.json())
         .then(data => {
             console.log(data.message);
