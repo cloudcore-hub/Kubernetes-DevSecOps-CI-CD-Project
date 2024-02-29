@@ -302,9 +302,13 @@ data:
     mongo_username = os.getenv('MONGO_USERNAME')
     mongo_password = os.getenv('MONGO_PASSWORD')
 
+    if mongo_username is None or mongo_password is None:
+    print("MongoDB credentials not provided. Exiting...")
+    exit(1) 
+
     admin_user = {
         "email": mongo_username,
-        "password": generate_password_hash(mongo_password),
+        "password": generate_password_hash(mongo_password) if mongo_password else None,
         "is_admin": True
     }
     
