@@ -4,7 +4,7 @@ import os
 
 # client = MongoClient('mongodb://localhost:27017/')  # Local MongoDB connection string
 
-client = MongoClient('mongodb://mongo:27017/')
+client = MongoClient('mongodb://mongodb-svc:27017/quiz_database?directConnection=true')
 
 db = client['quiz_database']
 questions_collection = db['questions']
