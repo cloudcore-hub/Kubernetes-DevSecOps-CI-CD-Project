@@ -3,8 +3,11 @@ kind: Deployment
 metadata:
   name: frontend
   namespace: quiz-app
+  labels:
+    role: frontend
+    env: demo
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -12,14 +15,14 @@ spec:
       maxUnavailable: 25%
   selector:
     matchLabels:
-      app: frontend
+      role: frontend
   template:
     metadata:
       labels:
-        app: frontend
+        role: frontend
     spec:
       containers:
-      - name: frontend-image
+      - name: frontend
         image: ogochukwuozotta/frontend:e2d96e568200f9abaeb75956a36b64176f7999ff
         ports:
         - containerPort: 80

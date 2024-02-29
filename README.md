@@ -655,13 +655,26 @@ Click on CREATE.
 [image]
 
 Once your Ingress application is deployed. It will create an Application Load Balancer
-You can check out the load balancer named with k8s-three.
+You can check out the load balancer named with k8s-ingress.
 [image]
 
 Now, Copy the ALB-DNS and go to your Domain Provider in my case AWS Route 53 is the domain provider.
 
-Go to DNS and add a CNAME type with hostname backend then add your ALB in the Answer and click on Save
-Note: I have created a subdomain backend.cloudcorehub.com
+CREATE A-records using DNS service in aws [Route53]
+
+AWS management console 
+Route 53 
+Hosted zones, select the DNS
+create record 
+Record name = quizapp .cloudcorehub.com
+Route traffic to = Alias to Application and Classic Load Balancer 
+US EAST 1
+Choose the LoadBalancer from cluster deployment 
+Create Record  
+
+Share the quizapp.cloudcorehub.com
+
+Note: I have created a subdomain quizapp.cloudcorehub.com
 [image]
 
 You can see all 4 application deployments in the below snippet.

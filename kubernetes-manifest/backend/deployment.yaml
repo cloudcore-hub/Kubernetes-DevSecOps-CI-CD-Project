@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: api
   namespace: quiz-app
   labels:
-    role: backend
-    env: production
+    role: api
+    env: demo
 spec:
   replicas: 2
   strategy:
@@ -15,14 +15,14 @@ spec:
       maxUnavailable: 25%
   selector:
     matchLabels:
-      role: backend
+      role: api
   template:
     metadata:
       labels:
-        role: backend
+        role: api
     spec:
       containers:
-        - name: backend-image
+        - name: api
           image: ogochukwuozotta/backend:e2d96e568200f9abaeb75956a36b64176f7999ff
           imagePullPolicy: Always
           env:
