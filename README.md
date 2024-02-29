@@ -226,7 +226,7 @@ Run the below command, and add your keys from Step 2
 `aws configure`
 [image]
 
-### Step 4: Deploy the Jumphost Server(EC2) and EKS using Terraform on Github Actions
+### Step 4: Deploy the Jumphost Server(EC2) using Terraform on Github Actions
 ```
 cd ~/Desktop/project/iac_code
 ```
@@ -237,17 +237,17 @@ Do some modifications to the `terraform.tf` file such as changing the bucket nam
 
 [image]
 
-Now, in the `variables.tf` you can change the `region`, `clusterName`, `ami_id`, `instance_type`, but you must replace the `instance_keypair` with the Pem File name as you have for your Pem file. Provide the Pem file name that is already created on AWS.
+Now, in the `variables.tf` you can change some of the variable `region`, `vpc-name`, `ami_id`, `instance_type`, but you must replace the `instance_keypair` with the Pem File name as you have for your Pem file. Provide the Pem file name that is already created on AWS.
 [image]
 
 Review `.github/workflows/terraform.yml`
 
 ```
-git commit -m "updated terraform files"
+git commit -am "updated terraform files"
 git push
 ```
 With the couple of changed made in the terraform/ folder. 
-Github Actions workflow will be trigger. This will take 10-20minutes to deploy the infrastructure
+Github Actions workflow will be trigger. 
 
 Go to the EC2 on AWS Console
 Now, connect to your Jumphost-Server by clicking on Connect.
@@ -268,14 +268,42 @@ terraform --version
 kubectl version
 aws --version
 trivy --version
-eksctl --version
+eksctl version
 ```
 
 [image]
 
-#### Create Service Account 
+#### Create an eks cluster using the below commands.
 ```
-eksctl create iamserviceaccount --cluster=quizapp-eks --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_aws_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
+eksctl create cluster --name quizapp-eks-cluster --region us-east-1 --node-type t2.medium --nodes-min 2 --nodes-max 2
+aws eks update-kubeconfig --region us-east-1 --name quizapp-eks-cluster
+```
+
+Once your cluster is created, you can validate whether your nodes are ready or not by the below command
+
+```
+kubectl get nodes
+```
+#### Configure Load Balancer on the EKS
+Configure the Load Balancer on our EKS because our application will have an ingress controller.
+Download the policy for the LoadBalancer prerequisite.
+
+```
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
+```
+#### Create IAM policy
+Create the IAM policy using the below command
+```
+aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
+```
+#### Create OIDC Provider
+```
+eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=quizapp-eks-cluster --approve
+```
+#### Create Service Account 
+Add your aws account ID
+```
+eksctl create iamserviceaccount --cluster=quizapp-eks-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_aws_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
 ```
 
 Run the below command to deploy the AWS Load Balancer Controller
@@ -284,7 +312,7 @@ Run the below command to deploy the AWS Load Balancer Controller
 sudo snap install helm --classic
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update eks
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=quizapp-eks --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=quizapp-eks-cluster --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller
 ```
 
 Wait for 2 minutes and run the following command below to check whether aws-load-balancer-controller pods are running or not.
@@ -372,14 +400,15 @@ Update the kubernetes-manifest/ingress.yaml file with your DNS
 Review .github/workflows/quizapp.yml file
 
 ```
-git commit -m "updated manifest files"
+git commit -am "updated manifest files"
 git push
 ```
 
 ### Step 9: Configure ArgoCD
-Confirm the namespaces created on the EKS Cluster
+Create the namespace for the EKS Cluster
 
 ```
+kubectl create namespace quiz-app
 kubectl get namespaces
 ```
 or 
@@ -387,6 +416,14 @@ or
 kubectl get ns
 ```
 [image]
+
+Now, we will install argoCD.
+To do that, create a separate namespace for it and apply the argocd configuration for installation.
+
+```
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.7/manifests/install.yaml
+```
 
 To confirm argoCD pods are running.
 All pods must be running, to validate run the below command
@@ -423,8 +460,8 @@ sudo apt install jq -y
 [image]
 
 ```
-export ARGOCD_SERVER='kubectl get svc argocd-server -n argocd -o json | jq - raw-output '.status.loadBalancer.ingress[0].hostname''
-export ARGO_PWD='kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d'
+export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
+export ARGO_PWD=`kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
 echo $ARGO_PWD
 ```
 [image]
@@ -439,37 +476,59 @@ Here is our ArgoCD Dashboard.
 
 ### Step 10: Set up the Monitoring for our EKS Cluster using Prometheus and Grafana. 
 We can monitor the Cluster Specifications and other necessary things.
-Prometheus and Grafana has already been installed in our jumphost server.
 
+We will achieve the monitoring using Helm
+Add all the helm repos, the prometheus, grafana repo by using the below command
+```
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+```
+
+Install the prometheus
+```
+helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
+```
+
+Install the Grafana 
+```
+helm install grafana grafana/grafana -n monitoring --create-namespace
+```
+
+Install ingress-nginx
+```
+helm install ingress-nginx ingress-nginx/ingress-nginx
+```
 Now, confirm the service by the below command
 ```
-kubectl get svc
+kubectl get svc -n monitoring
 ```
 [image]
 
 
 Now, we need to access our Prometheus and Grafana consoles from outside of the cluster.
 
-For that, we need to change the Service type from ClusterType to LoadBalancer
+For that, we need to change the Service type from ClusterIp to LoadBalancer
 
-Edit the stable-kube-prometheus-sta-prometheus service
+Edit the prometheus-server service
 ```
-kubectl edit svc stable-kube-prometheus-sta-prometheus
-```
-[image]
-
-
-Modification in the 48th line from ClusterType to LoadBalancer
-[image]
-
-Edit the stable-grafana service
-
-```
-kubectl edit svc stable-grafana
+kubectl edit svc prometheus-kube-prometheus-prometheus -n monitoring
 ```
 [image]
 
-Modification in the 39th line from ClusterType to LoadBalancer
+
+Modification in the 48th line from ClusterIp to LoadBalancer
+[image]
+
+Edit the Grafana service
+
+```
+kubectl edit svc grafana -n monitoring
+```
+[image]
+
+Modification in the 39th line from ClusterIp to LoadBalancer
 [image]
 
 Now, if you list again the service then, you will see the LoadBalancers DNS names
@@ -482,7 +541,7 @@ You can also validate from AWS LB console.
 [image]
 
 Now, access your Prometheus Dashboard
-Paste the <Prometheus-LB-DNS>:9090 in your browser and you will see somwthing like this
+Paste the <Prometheus-LB-DNS>:9090 in your browser and you will see something like this
 [image]
 
 Click on Status and select Target.
@@ -492,7 +551,13 @@ You will see a lot of Targets
 
 Now, access your Grafana Dashboard
 Copy the ALB DNS of Grafana and paste it into your browser.
-The username will be admin and the password will be prom-operator for your Grafana LogIn.
+
+Get your 'admin' user password by running:
+```
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+The username will be admin and the password will be from the command above for your Grafana LogIn.
 [image]
 
 Now, click on Data Source
@@ -596,7 +661,7 @@ You can check out the load balancer named with k8s-three.
 Now, Copy the ALB-DNS and go to your Domain Provider in my case AWS Route 53 is the domain provider.
 
 Go to DNS and add a CNAME type with hostname backend then add your ALB in the Answer and click on Save
-Note: I have created a subdomain backend.devopsogo.com
+Note: I have created a subdomain backend.cloudcorehub.com
 [image]
 
 You can see all 4 application deployments in the below snippet.

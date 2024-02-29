@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: quizapp.devopsogo.com
+  - host: quizapp.cloudcorehub.com
     http:
       paths:
       - pathType: Prefix
