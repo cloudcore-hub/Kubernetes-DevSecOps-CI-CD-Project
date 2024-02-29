@@ -11,7 +11,7 @@ app = Flask(__name__, template_folder='../frontend/templates', static_folder='..
 # # Configuring the mongo database
 app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a random secret key
 
-mongo_uri = os.getenv('MONGO_CONN_STR', 'default-mongo-uri')
+mongo_uri = 'mongodb://mongodb-svc:27017/quiz_database?directConnection=true'
 mongo_username = os.getenv('MONGO_USERNAME')
 mongo_password = os.getenv('MONGO_PASSWORD')
 
