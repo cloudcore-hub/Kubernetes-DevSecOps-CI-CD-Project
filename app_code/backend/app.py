@@ -223,9 +223,5 @@ def finish_quiz():
     return jsonify({'message': 'Quiz completed, score saved.'})
 
 
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0', debug=True)
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
