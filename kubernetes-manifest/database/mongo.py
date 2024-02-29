@@ -293,16 +293,11 @@ example_user = {
 users_collection.insert_one(example_user)
 print("Example user inserted successfully.")
 
-mongo_username = os.getenv('MONGO_USERNAME')
-mongo_password = os.getenv('MONGO_PASSWORD')
 
-if mongo_username is None or mongo_password is None:
-    print("MongoDB credentials not provided. Exiting...")
-    exit(1) 
 
 admin_user = {
-    "email": mongo_username,
-    "password": generate_password_hash(mongo_password) if mongo_password else None,
+    "email": "ogochukwu.ozotta@gmail.com",
+    "password": generate_password_hash("Admin123"),
     "is_admin": True
 }
 
