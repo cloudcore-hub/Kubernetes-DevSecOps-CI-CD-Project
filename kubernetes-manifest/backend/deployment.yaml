@@ -27,10 +27,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: MONGO_CONN_STR
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongo-uri
+              value: mongodb://mongodb-svc:27017/quiz_database?directConnection=true
             - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
