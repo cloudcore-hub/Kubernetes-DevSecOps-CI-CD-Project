@@ -9,9 +9,11 @@ spec:
       containers:
         - name: mongo-init
           image: python:3.11
-          command:
-            - python
-            - /scripts/mongo.py
+          command: ["/bin/sh","-c"]
+          args: 
+            - |
+              pip install pymongo &&
+              python /scripts/mongo.py
           volumeMounts:
             - name: mongo-script
               mountPath: /scripts
