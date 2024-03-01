@@ -22,7 +22,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest pytest-cov
-        pip install -r app_code/backend/requirements.txt
+        pip install -r backend/requirements.txt
 
     - name: Lint with flake8
       run: |
@@ -30,7 +30,7 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      working-directory: ./app_code/backend
+      working-directory: ./backend
     
       # Setup sonar-scanner
     - name: Setup SonarQube
@@ -43,7 +43,7 @@ jobs:
          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-         -Dsonar.sources=app_code/backend
+         -Dsonar.sources=backend/
 
     #   # Check the Quality Gate status.
     # - name: SonarQube Quality Gate check
@@ -62,7 +62,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build and push backend Docker image
-      working-directory: ./app_code/backend
+      working-directory: ./backend
       run: |
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
@@ -81,7 +81,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build and push frontend Docker image
-      working-directory: ./app_code/frontend
+      working-directory: ./frontend
       run: |
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin

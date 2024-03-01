@@ -717,6 +717,22 @@ Now, the new pods will be started.
 And Your Application won’t lose a single piece of data.
 [image]
 
+### Clean up 
+From your jumphost server terminal run
+```
+eksctl delete cluster --name=quizapp-eks-cluster --region=us-east-1
+```
+
+In your iac_code terminal, 
+cd into the terraform folder
+run
+```
+terraform init -backend-config="bucket=cloudcore007"
+```
+and then 
+```
+terraform destroy -auto-approve
+```
 
 ### Conclusion: 
 In this comprehensive DevSecOps Kubernetes project, we successfully:
