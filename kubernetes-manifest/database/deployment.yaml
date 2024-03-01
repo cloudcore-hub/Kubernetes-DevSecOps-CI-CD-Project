@@ -14,16 +14,14 @@ spec:
         app: mongodb
     spec: 
       containers:
-      - name: mon
+      - name: mongo-db
         image: mongo:4.4.6
         command:
-            - "numactl"
-            - "--interleave=all"
-            - "mongod"
-            - "--wiredTigerCacheSizeGB"
-            - "0.1"
-            - "--bind_ip"
-            - "0.0.0.0"
+          - "numactl"
+          - "--interleave=all"
+          - "mongod"
+          - "--wiredTigerCacheSizeGB=0.1"
+          - "--bind_ip=0.0.0.0"
         ports:
         - containerPort: 27017
         env: 

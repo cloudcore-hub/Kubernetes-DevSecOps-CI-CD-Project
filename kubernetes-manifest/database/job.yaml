@@ -8,21 +8,23 @@ spec:
     spec:
       containers:
         - name: mongo-init
-          image: python:3.11
-          command: ["/bin/sh","-c"]
-          args: 
-            - |
-              pip install pymongo werkzeug &&
-              python /scripts/mongo.py
-          volumeMounts:
-            - name: mongo-script
-              mountPath: /scripts
+          image: ogochukwuozotta/database
           env:
-            - name: MONGO_CONN_STR
-              value: mongodb://mongodb-svc:27017/quiz_database?directConnection=true
-      volumes:
-        - name: mongo-script
-          configMap:
-            name: mongo-script-configmap
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-password
+            - name: MONGO_HOST
+              value: "mongodb-svc"
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DB
+              value: "quiz_database"
       restartPolicy: Never
   backoffLimit: 4

@@ -93,9 +93,28 @@ jobs:
         image-ref: 'docker.io/${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}'
         format: 'sarif'
         output: 'trivy-results.sarif'
-  
+
+  build-database:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and push database Docker image
+      working-directory: ./database
+      run: |
+        docker build . -t ${{ secrets.DOCKER_USERNAME }}/database:${{ github.sha }}
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker push ${{ secrets.DOCKER_USERNAME }}/database:${{ github.sha }}
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'docker.io/${{ secrets.DOCKER_USERNAME }}/database:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
   update-manifest-files:
-    needs: [build-frontend, build-backend]
+    needs: [build-frontend, build-backend, build-database]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -114,6 +133,10 @@ jobs:
 
           # Update Frontend Image in Deployment Manifest
           sed -i "s#${{ secrets.DOCKER_USERNAME }}.*#${{ secrets.DOCKER_USERNAME }}/frontend:${{ github.sha }}#g" kubernetes-manifest/frontend/deployment.yaml
+          
+          # Update Database Image in Kubernetes Job Manifest
+          sed -i "s#${{ secrets.DOCKER_USERNAME }}.*#${{ secrets.DOCKER_USERNAME }}/database:${{ github.sha }}#g" kubernetes-manifest/database/job.yaml
+          
           git add -A
           git commit -am "Update image for - ${{ github.sha }} [skip ci]"
       - run: echo ${{ github }}

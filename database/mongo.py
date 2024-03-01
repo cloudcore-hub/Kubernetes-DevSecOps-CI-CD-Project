@@ -1,12 +1,21 @@
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
-import os 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# client = MongoClient('mongodb://localhost:27017/')  # Local MongoDB connection string
+# MONGO_HOST = 'localhost'  # for Local MongoDB connection
+mongo_username = os.getenv('MONGO_USERNAME')
+mongo_password = os.getenv('MONGO_PASSWORD')
+MONGO_HOST = 'mongodb-svc'
+MONGO_PORT = 27017
+MONGO_DB = 'quiz_database'
 
-client = MongoClient('mongodb://mongodb-svc:27017/quiz_database?directConnection=true')
 
-db = client['quiz_database']
+client = MongoClient(f'mongodb://{mongo_username}:{mongo_password}@{MONGO_HOST}:{MONGO_PORT}/')
+
+db = client[MONGO_DB]
+
 questions_collection = db['questions']
 
 # Clear existing data
@@ -292,8 +301,6 @@ example_user = {
 # Insert the example user
 users_collection.insert_one(example_user)
 print("Example user inserted successfully.")
-
-
 
 admin_user = {
     "email": "ogochukwu.ozotta@gmail.com",
