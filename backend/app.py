@@ -6,17 +6,19 @@ from bson.objectid import ObjectId
 import datetime
 import os 
 from dotenv import load_dotenv
-load_dotenv()
+import urllib.parse
+
 from route import *
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
+load_dotenv()
 # # Configuring the mongo database
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY') 
+app.config['SECRET_KEY'] = urllib.parse.quote(os.getenv('SECRET_KEY'))
 
 
-mongo_username = os.getenv('MONGO_USERNAME')
-mongo_password = os.getenv('MONGO_PASSWORD')
+mongo_username = urllib.parse.quote(os.getenv('MONGO_USERNAME'))
+mongo_password = urllib.parse.quote(os.getenv('MONGO_PASSWORD'))
 
 # MONGO_HOST = 'localhost'  # for Local MongoDB connection
 MONGO_HOST = 'mongodb-svc'

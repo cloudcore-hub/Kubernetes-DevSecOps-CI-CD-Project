@@ -2,11 +2,13 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash
 import os
 from dotenv import load_dotenv
+import urllib.parse
+
 load_dotenv()
 
 # MONGO_HOST = 'localhost'  # for Local MongoDB connection
-mongo_username = os.getenv('MONGO_USERNAME')
-mongo_password = os.getenv('MONGO_PASSWORD')
+mongo_username = urllib.parse.quote(os.getenv('MONGO_USERNAME'))
+mongo_password = urllib.parse.quote(os.getenv('MONGO_PASSWORD'))
 MONGO_HOST = 'mongodb-svc'
 MONGO_PORT = 27017
 MONGO_DB = 'quiz_database'
