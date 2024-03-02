@@ -7,14 +7,13 @@ import urllib.parse
 load_dotenv()
 
 # MONGO_HOST = 'localhost'  # for Local MongoDB connection
-mongo_username = urllib.parse.quote(os.getenv('MONGO_USERNAME'))
-mongo_password = urllib.parse.quote(os.getenv('MONGO_PASSWORD'))
+
 MONGO_HOST = 'mongodb-svc'
 MONGO_PORT = 27017
 MONGO_DB = 'quiz_database'
 
 
-client = MongoClient(f'mongodb://{mongo_username}:{mongo_password}@{MONGO_HOST}:{MONGO_PORT}/')
+client = MongoClient(f'mongodb://{MONGO_HOST}:{MONGO_PORT}/')
 
 db = client[MONGO_DB]
 

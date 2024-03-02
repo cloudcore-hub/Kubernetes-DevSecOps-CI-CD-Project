@@ -7,25 +7,21 @@ import datetime
 import os 
 from dotenv import load_dotenv
 import urllib.parse
-
+load_dotenv()
 from route import *
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
-load_dotenv()
 # # Configuring the mongo database
-app.config['SECRET_KEY'] = urllib.parse.quote(os.getenv('SECRET_KEY'))
+app.config['SECRET_KEY'] = 'your-secret-key' 
 
-
-mongo_username = urllib.parse.quote(os.getenv('MONGO_USERNAME'))
-mongo_password = urllib.parse.quote(os.getenv('MONGO_PASSWORD'))
 
 # MONGO_HOST = 'localhost'  # for Local MongoDB connection
 MONGO_HOST = 'mongodb-svc'
 MONGO_PORT = 27017
 MONGO_DB = 'quiz_database'
 
-mongo_client = MongoClient(f'mongodb://{mongo_username}:{mongo_password}@{MONGO_HOST}:{MONGO_PORT}/')
+mongo_client = MongoClient(f'mongodb://{MONGO_HOST}:{MONGO_PORT}/')
 mongo_db = mongo_client[MONGO_DB]
 users_collection = mongo_db['users']
 questions_collection = mongo_db['questions']

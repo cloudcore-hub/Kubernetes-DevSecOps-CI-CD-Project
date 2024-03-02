@@ -28,16 +28,6 @@ spec:
           env:
             - name: MONGO_CONN_STR
               value: mongodb://mongodb-svc:27017/quiz_database  # ?directConnection=true
-            - name: MONGO_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongo-username
-            - name: MONGO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongo-password
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:

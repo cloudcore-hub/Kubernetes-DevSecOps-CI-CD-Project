@@ -10,16 +10,6 @@ spec:
         - name: mongo-init
           image: ogochukwuozotta/database:53b4022071a2f3cf14af3290a831922dc3ba7495
           env:
-            - name: MONGO_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongo-username
-            - name: MONGO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: mongo-password
             - name: MONGO_HOST
               value: "mongodb-svc"
             - name: MONGO_PORT
