@@ -5,9 +5,9 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import datetime
 import os 
-from dotenv import load_dotenv
+
 import urllib.parse
-load_dotenv()
+
 from route import *
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
