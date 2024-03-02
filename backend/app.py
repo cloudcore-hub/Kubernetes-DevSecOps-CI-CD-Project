@@ -32,5 +32,13 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 
+
+# Health check route
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "UP"}), 200
+
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
