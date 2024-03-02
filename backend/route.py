@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_user, login_required, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import app, mongo_db, users_collection, questions_collection, scores_collection, login_manager
 from bson.objectid import ObjectId
