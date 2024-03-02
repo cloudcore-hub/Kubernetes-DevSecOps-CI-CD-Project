@@ -26,5 +26,6 @@ spec:
         image: ogochukwuozotta/frontend:35ef7c2d6eb4aff5c9a7b3551a545f3d9210eb56
         ports:
         - containerPort: 80
-        env: ROUTING
-        value: "http:/backend.cloudcorehub.com/api"
+        env: 
+        - name: ROUTING
+          value: "http:/backend.cloudcorehub.com/api"
