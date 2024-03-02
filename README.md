@@ -274,8 +274,9 @@ eksctl version
 [image]
 
 #### Create an eks cluster using the below commands.
+This might take 15-20 minutes. Also adjust the node count 
 ```
-eksctl create cluster --name quizapp-eks-cluster --region us-east-1 --node-type t2.medium --nodes-min 2 --nodes-max 2
+eksctl create cluster --name quizapp-eks-cluster --region us-east-1 --node-type t2.large --nodes-min 2 --nodes-max 4
 aws eks update-kubeconfig --region us-east-1 --name quizapp-eks-cluster
 ```
 
@@ -303,7 +304,7 @@ eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=quizapp-ek
 #### Create Service Account 
 Add your aws account ID
 ```
-eksctl create iamserviceaccount --cluster=quizapp-eks-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<your_aws_account_id>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
+eksctl create iamserviceaccount --cluster=quizapp-eks-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::879487400632:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
 ```
 
 Run the below command to deploy the AWS Load Balancer Controller
@@ -466,7 +467,7 @@ echo $ARGO_PWD
 ```
 [image]
 
-Enter the username and password in argoCD and click on SIGN IN.
+Enter the username `admin` and password in argoCD and click on SIGN IN.
 [image]
 
 Here is our ArgoCD Dashboard.
@@ -495,6 +496,13 @@ Install the Grafana
 ```
 helm install grafana grafana/grafana -n monitoring --create-namespace
 ```
+Get `admin` user password 
+```
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+```
+
+
+
 
 Install ingress-nginx
 ```
@@ -509,7 +517,7 @@ kubectl get svc -n monitoring
 
 Now, we need to access our Prometheus and Grafana consoles from outside of the cluster.
 
-For that, we need to change the Service type from ClusterIp to LoadBalancer
+For that, we need to change the Service type from ClusterIP to LoadBalancer
 
 Edit the prometheus-server service
 ```
@@ -518,7 +526,7 @@ kubectl edit svc prometheus-kube-prometheus-prometheus -n monitoring
 [image]
 
 
-Modification in the 48th line from ClusterIp to LoadBalancer
+Modification in the 48th line from ClusterIP to LoadBalancer
 [image]
 
 Edit the Grafana service
@@ -528,12 +536,12 @@ kubectl edit svc grafana -n monitoring
 ```
 [image]
 
-Modification in the 39th line from ClusterIp to LoadBalancer
+Modification in the 39th line from ClusterIP to LoadBalancer
 [image]
 
 Now, if you list again the service then, you will see the LoadBalancers DNS names
 ```
-kubectl get svc
+kubectl get svc -n monitoring
 ```
 [image]
 
@@ -567,7 +575,7 @@ Now, click on Data Source
 Select Prometheus
 [image]
 
-In the Connection, paste your <Prometheus-LB-DNS>:9090.
+In the Connection, paste your <Prometheus-LB-DNS>:9090
 [image]
 
 If the URL is correct, then you will see a green notification/
