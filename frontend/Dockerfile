@@ -1,9 +1,7 @@
-# Use the official Apache HTTPD image
-FROM httpd:2.4
-
-# Copy your frontend application files to the document root
-COPY ./static /usr/local/apache2/htdocs/static/
-COPY ./templates /usr/local/apache2/htdocs/
-
-# The default port for Apache is 80
+FROM nginx:alpine
+RUN rm -rf /usr/share/nginx/html/*
+COPY ./static /usr/share/nginx/html/static
+COPY ./templates /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

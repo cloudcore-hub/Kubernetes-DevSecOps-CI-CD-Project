@@ -24,10 +24,10 @@ spec:
       containers:
         - name: api
           image: ogochukwuozotta/backend:d76cfd43260fa0af26e43cdbd774f8519f251885
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent 
           env:
             - name: MONGO_CONN_STR
-              value: mongodb://mongodb-svc:27017/quiz_database?directConnection=true
+              value: mongodb://mongodb-svc:27017/quiz_database  # ?directConnection=true
             - name: MONGO_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -38,6 +38,11 @@ spec:
                 secretKeyRef:
                   name: mongodb-secret
                   key: mongo-password
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: mongo-secret-key     
           ports:
             - containerPort: 8080
           livenessProbe:

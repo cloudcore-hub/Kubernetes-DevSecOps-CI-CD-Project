@@ -104,15 +104,6 @@ function resetTimer() {
     startTimer();
 }
 
-//function showFinalScore(score) {
-//    alert(`Quiz Completed! Your final score is: ${score}`);
-//    hideQuizElements();
-//    // Clear the feedback text
-//    document.getElementById('feedback').innerText = '';
-//    // Display the final message
-//    document.getElementById('question').innerText = `Congratulations! Your final score is ${score}. Thanks for taking the Quiz`;
-//}
-
 
 function showFinalScore(score) {
     // Save the final score to the database
