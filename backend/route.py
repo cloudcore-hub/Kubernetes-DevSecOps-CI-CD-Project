@@ -182,7 +182,7 @@ def finish_quiz():
 
     return jsonify({'message': 'Quiz completed, score saved.'})
 
-# Health check route
-@app.route('/health')
-def health_check():
-    return jsonify({"status": "UP"}), 200
+# # Health check route
+# @app.route('/health')
+# def health_check():
+#     return jsonify({"status": "UP"}), 200
