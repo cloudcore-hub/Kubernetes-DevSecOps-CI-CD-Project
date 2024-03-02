@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: mongo-init
-          image: ogochukwuozotta/database:2364a14da5063451a5422cd33747c373ba0c6fed
+          image: ogochukwuozotta/database:a8b160026c31b4d99318350829da21b3dfa25a30
           env:
             - name: MONGO_USERNAME
               valueFrom:
