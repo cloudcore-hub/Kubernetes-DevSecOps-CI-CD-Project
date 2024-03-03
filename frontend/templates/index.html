@@ -6,16 +6,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Quiz App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="container">
         <h1>Welcome to the Quiz App</h1>
         <p>Test your bible knowledge with our fun quizzes!</p>
         <div class="navigation-links">
-            <a href="{{ url_for('signup') }} " class="button-link">Sign Up</a>
-            <a href="{{ url_for('login') }}" class="button-link">Login</a>
-            <a href="{{ url_for('admin') }}" class="button-link">Admin Page</a>
+            <a href="signup.html" class="button-link">Sign Up</a>
+            <a href="login.html" class="button-link">Login</a>
+            <a href="admin.html" class="button-link">Admin Page</a>
         </div>
 
     </div>
