@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: mongo-init
-          image: ogochukwuozotta/database:dff2fd5f2888cd9a7190c5e2b0d8134f6a1fd09a
+          image: ogochukwuozotta/database:a0e4ec619fbfadc27bc3625873ce18b63fca5ac6
           env:
             - name: MONGO_HOST
               value: "mongodb-svc"
