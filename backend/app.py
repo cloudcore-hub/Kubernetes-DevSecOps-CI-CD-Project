@@ -9,7 +9,9 @@ import os
 import urllib.parse
 
 
-app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+# app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
+app = Flask(__name__, template_folder='templates', static_folder='static')
+
 
 # # Configuring the mongo database
 app.config['SECRET_KEY'] = 'your-secret-key' 

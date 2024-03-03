@@ -62,7 +62,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build and push backend Docker image
-      working-directory: ./backend
+      working-directory: .
       run: |
         docker build . -t ${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}
         echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
