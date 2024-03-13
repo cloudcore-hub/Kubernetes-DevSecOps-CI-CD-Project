@@ -22,26 +22,28 @@ Welcome to the End-to-End DevSecOps Kubernetes Project guide! In this comprehens
 In this project, we will cover the following key aspects:
 
 1. IAM User Setup: Create an IAM user on AWS with the necessary permissions to facilitate deployment and management activities.
-2. Infrastructure as Code (IaC): Use Terraform and AWS CLI to set up the Jenkins server (EC2 instance) on AWS.
-3. Jenkins Server Configuration: Install and configure essential tools on the Jenkins server, including Jenkins itself, Docker, Sonarqube, Terraform, Kubectl, AWS CLI, and Trivy.
+2. Infrastructure as Code (IaC): Use Terraform and AWS CLI to set up the Jumphost server (EC2 instance) on AWS.
+3. Github Actions Configuration: configure essential githubt actions on Github Actions workflow, including Snyk, Docker, Sonarqube, Terraform, Kubectl, AWS CLI, and Trivy.
 4. EKS Cluster Deployment: Utilize eksctl commands to create an Amazon EKS cluster, a managed Kubernetes service on AWS.
 5. Load Balancer Configuration: Configure AWS Application Load Balancer (ALB) for the EKS cluster.
-6. Amazon ECR Repositories: Create private repositories for both frontend and backend Docker images on Amazon Elastic Container Registry (ECR).
+6. Dockerhub Repositories: Automatically Create repositories for both frontend and backend Docker images on Dockerhub.
 7. ArgoCD Installation: Install and set up ArgoCD for continuous delivery and GitOps.
 8. Sonarqube Integration: Integrate Sonarqube for code quality analysis in the DevSecOps pipeline.
-9. Jenkins Pipelines: Create Jenkins pipelines for deploying backend and frontend code to the EKS cluster.
-10. Monitoring Setup: Implement monitoring for the EKS cluster using Helm, Prometheus, and Grafana.
-11. ArgoCD Application Deployment: Use ArgoCD to deploy the Three-Tier application, including database, backend, frontend, and ingress components.
-12. DNS Configuration: Configure DNS settings to make the application accessible via custom subdomains.
-13. Data Persistence: Implement persistent volume and persistent volume claims for database pods to ensure data persistence.
-14. Conclusion and Monitoring: Conclude the project by summarizing key achievements and monitoring the EKS cluster’s performance using Grafana.
+9. Snyk Integration: Integrate Snyk for vulnerability scanning and dependency management analysis in the DevSecOps pipeline.
+10. Trivy Integration: Integrate Trivy for container image and filesystem vulnerability scanning in the DevSecOps pipeline.
+11. Github Action Pipelines: Create Github Action pipelines for deploying backend and frontend code to the EKS cluster.
+12. Monitoring Setup: Implement monitoring for the EKS cluster using Helm, Prometheus, and Grafana.
+13. ArgoCD Application Deployment: Use ArgoCD to deploy the Three-Tier application, including database, backend, frontend, and ingress components.
+14. DNS Configuration: Configure DNS settings to make the application accessible via custom subdomains.
+15. Data Persistence: Implement persistent volume and persistent volume claims for database pods to ensure data persistence.
+16. Conclusion and Monitoring: Conclude the project by summarizing key achievements and monitoring the EKS cluster’s performance using Grafana.
 
 ### Prerequisites:
-Before starting the project, ensure you have the following prerequisites:
+Before starting this project, ensure you have the following prerequisites:
 
 - An AWS account with the necessary permissions to create resources.
-- Terraform and AWS CLI installed on your local machine.
-- Basic familiarity with Kubernetes, Docker, Github Actions, Terraform, and DevOps principles.
+- Terraform and AWS CLI installed on your local computer.
+- Basic familiarity with Kubernetes, Docker, CICD pipelines, Github Actions, Terraform, and DevOps principles.
 
 ### Step 1: SSH Exchange between local computer and Github account
 `cd` to home dir and create .ssh/ folder if it doesn't exist 
@@ -50,7 +52,8 @@ Before starting the project, ensure you have the following prerequisites:
 cd ~/.ssh
 ssh-keygen
 ```
-Give the key a name `key`. List `ls` the content of .ssh/ folder.
+Give the key a name `key`. Then list `ls` the content of .ssh/ folder.
+
 Copy the content of the public key
 ```
 cat key.pub
@@ -70,7 +73,9 @@ mkdir ~/Desktop/project && cd ~/Desktop/project
 ```
 #### Git Clone the application code and IaC repositories 
 ```
-git clone https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project.git
+git clone https://github.com/cloudcore-hub/reactjs-quiz-app.git
+```
+```
 git clone https://github.com/cloudcore-hub/iac_code.git
 ```
 ```
@@ -79,7 +84,7 @@ git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
 ```
 ```
 cd ..
-cd Kubernetes-DevSecOps-CI-CD-Project
+cd reactjs-quiz-app
 git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
 ```
 #### Connect the repository to your Github
@@ -88,7 +93,7 @@ git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
    - Go to GitHub and sign in.
    - Go to your profile and open Your repositories
    - Click the `New` icon in the top-right corner to create new repository.
-   - Name your repository `iac_code`, set it to public or private, and click "Create repository."
+   - Name your repository `iac`, set it to public or private, and click "Create repository."
 
 2. **Change the Remote URL of Your Local Repository:**
    - Open your terminal and navigate to the root directory of your local repository.
@@ -122,12 +127,12 @@ git config core.sshCommand "ssh -i ~/.ssh/key -F /dev/null"
    - Refresh the GitHub page of your repository to see if the code has been pushed successfully.
 
 5. **Repeat for the second repo:**  
-You can name the second repo `app_code` for simplicity
+You can name the second repo `reactjs` for simplicity
 When done, run the following command in your terminal
 
 ```
-git config --global user.name <github user name>
-git config --global user.email <github email>
+git config --global user.name <your github user name>
+git config --global user.email <your github email>
 ```
 
 ### Step 2: CREATE AWS Resources
@@ -143,7 +148,7 @@ Provide the name to your user and click on Next.
 [image]
 Select the Attach policies directly option and search for AdministratorAccess then select it.
 
-Click on the Next.
+Click on Next.
 
 [image]
 Click on Create user
@@ -161,9 +166,9 @@ Provide the Description and click on the Create access key.
 Here, you will see that you got the credentials and also you can download the CSV file for the future. Copy the Access Key ID and the Access Secret Key
 [image]
 
-#### Create Github Repo Secret for iac_code
-1. **Navigate to Your GitHub Repository:**
-   - Find and click on the iac_code repository where you want to add a secret.
+#### Create Github Repo Secret for iac
+1. **Navigate to Your GitHub Repository created in step 1:**
+   - Find and click on the iac repository where you want to add a secret.
 
 2. **Access the Repository Settings:**
    - Click on the "Settings" tab near the top of the repository page.
@@ -181,13 +186,11 @@ Here, you will see that you got the credentials and also you can download the CS
    - Click the "Add secret" button to save your new secret.
    - The secret is now stored securely and can be accessed in GitHub Actions workflows using the `${{ secrets.AWS_ACCESS_KEY_ID }}` syntax, where `AWS_ACCESS_KEY_ID` is the name you gave your secret. Do same for the `AWS_SECRET_ACCESS_KEY`, add the Secret and save
 
-6. **Repeat 1-5 for app_code repo:**
+6. **Repeat 1-5 for app code repository:**
 
 #### Create S3 Bucket for Terraform State files 
-Create S3 bucket for the terraform state file. Add the bucket name in the iac_code repo secret. Name: `BUCKET_TF_STATE`, Value: `<your-bucket-name>`
+Create S3 bucket for the terraform state file. Add the bucket name in the iac_code repo secret. Name: `BUCKET_TF`, Value: `<your-bucket-name>`
 
-#### Copy AWS Account ID
-Copy the account ID of your AWS Account. Add your AWS Account ID in the iac_code repo secret. Name: `AWS_ACCOUNT_ID`
 
 #### Create key pair 
 Create key pair for SSHing into the jumphost in .pem format and download it in your local machine
@@ -233,7 +236,7 @@ cd ~/Desktop/project/iac_code
 Open the folder in Visual Studio Code or any Text Editor 
 Navigate to the terraform folder
 
-Do some modifications to the `terraform.tf` file such as changing the bucket name (make sure you have created the manually on AWS Cloud). 
+Do some modifications to the `terraform.tf` file such as changing the bucket name (make sure you have created the bucket manually on AWS console). 
 
 [image]
 
@@ -248,19 +251,25 @@ git push
 ```
 With the couple of changed made in the terraform/ folder. 
 Github Actions workflow will be trigger. 
+Go to the repo on Github abd click on the Actions button to the see the Github Action workflow running.
 
 Go to the EC2 on AWS Console
 Now, connect to your Jumphost-Server by clicking on Connect.
 [image]
 
 Copy the ssh command and paste it on your local machine.
+Be sure you are in the same folder where your key pair is saved or provide the path to the key. For first time use incase of file permission error, run 
+```
+Chmod 400 key.pem
+```
+and try SSHing again
 [image]
 
 
 ### Step 5: Configure the Jumphost
-We have installed some services such as Docker, Terraform, Kubectl, eksctl, AWSCLI, Trivy, Helm, ArgoCD, Prometheus, Grafana
+We have installed some services such as Docker, Terraform, Kubectl, eksctl, AWSCLI, Trivy
 
-Let’s validate whether all our tools are installed or not.
+Validate whether all our tools are installed or not.
 ```
 docker --version
 docker ps
@@ -277,14 +286,19 @@ eksctl version
 This might take 15-20 minutes. Also adjust the node count 
 ```
 eksctl create cluster --name quizapp-eks-cluster --region us-east-1 --node-type t2.large --nodes-min 2 --nodes-max 4
+```
+
+Run the command below to connect to the EKS cluster created  allowing Kubernetes operations on that cluster.
+```
 aws eks update-kubeconfig --region us-east-1 --name quizapp-eks-cluster
 ```
 
-Once your cluster is created, you can validate whether your nodes are ready or not by the below command
+Once the cluster is created, you can validate whether your nodes are ready or not by the below command
 
 ```
 kubectl get nodes
 ```
+
 #### Configure Load Balancer on the EKS
 Configure the Load Balancer on our EKS because our application will have an ingress controller.
 Download the policy for the LoadBalancer prerequisite.
@@ -298,16 +312,17 @@ Create the IAM policy using the below command
 aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://iam_policy.json
 ```
 #### Create OIDC Provider
+To allows the cluster to integrate with AWS IAM for assigning IAM roles to Kubernetes service accounts, enhancing security and management.
 ```
 eksctl utils associate-iam-oidc-provider --region=us-east-1 --cluster=quizapp-eks-cluster --approve
 ```
 #### Create Service Account 
-Add your aws account ID
+Add your aws 12-digit account ID
 ```
-eksctl create iamserviceaccount --cluster=quizapp-eks-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::879487400632:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
+eksctl create iamserviceaccount --cluster=quizapp-eks-cluster --namespace=kube-system --name=aws-load-balancer-controller --role-name AmazonEKSLoadBalancerControllerRole --attach-policy-arn=arn:aws:iam::<ACCOUNT-ID>:policy/AWSLoadBalancerControllerIAMPolicy --approve --region=us-east-1
 ```
 
-Run the below command to deploy the AWS Load Balancer Controller
+Run the below command to deploy the AWS Load Balancer Controller using Helm
 
 ```
 sudo snap install helm --classic
@@ -324,57 +339,46 @@ kubectl get deployment -n kube-system aws-load-balancer-controller
 
 
 
-
-### Step 6: Create Docker Repositories for both Frontend & Backend
+### Step 6: Setup Docker Repositories to allow image push for  Frontend & Backend images
 Sign in into your Dockerhub Account
 Click on Create repository
-[image]
 
-Select the Public option and provide the name `<backend>` for the repository and click on Create.
-
-Click on Create repository again
-Select the Public option and provide the name `<frontend>` for the repository and click on Create.
-[image]
- 
 #### Create Docker Secret
 Go to Dockerhub page, click on your profile and select My Account.
-Then go to Security and click on New Access Token. Give it a name in the Access Token Description and Generate. Copy the token and add to `app_code` repo secrets, name it `DOCKER_PASSWORD` and paste the docker generated token. Also add another secret name it `DOCKER_USERNAME` and paste your dockerhub account username
+Then go to Security and click on New Access Token. Give it a name in the Access Token Description and Generate. Copy the token and add to `app` repo secrets, name it `DOCKER_PASSWORD` and paste the docker generated token. Also add another secret name it `DOCKER_USERNAME` and paste your dockerhub account username
 
 
 
 ### Step 7: Configure Sonar Cloud for our app_code Pipeline
 Sonar cloud will be using for Code Quality Analysis of our application code.
-Go to `sonarcloud.io` login with your github account. 
-Click on + sign on the top right corner
 
-Create New Organization
+#### 1. Create a SonarCloud Account
 
-Create an Organization
+- Go to [SonarCloud](https://sonarcloud.io/) and click on **Sign up**.
+- Choose the option to sign up using GitHub, Bitbucket, or GitLab.
+- Follow the prompts to authorize SonarCloud to access your account.
 
-Enter a name and key, choose the free plan 
+#### 2. Create a New Public Organization
 
-Create Organization
+- Once logged in, go to **+** (top-right corner) and select **Create new organization**.
+- Choose the service where your code is hosted (GitHub, Bitbucket, GitLab).
+- Follow the on-screen instructions to select your account and set up a new organization.
+- Choose **Public** for the organization’s visibility.
 
-Click om `Analyze a new project`
-Enter the values in the image below
-[image]
+#### 3. Create a Project
 
-Next.
-Previous version
+- In your new organization, click on **+** and select **Analyze new project**. Enter name and key. Then clikc on previous version and save
 
-Click on profile
+#### 4. Create a Token
 
-My account
+- Go to **My Account > Security**.
+- Under **Tokens**, enter a name for your new token and click **Generate**.
+- Save the generated token securely. You will use this token in your analysis commands or CI/CD configuration.
 
-Security
+**Note**: Keep your token confidential and use it as per the instructions for analyzing your project, either locally using SonarScanner or through your CI/CD pipeline.
 
-Generate Tokens 
 
-Give it a name 
-
-`Generate Token`
-
-Copy this token to Github app_code repository secret
+Copy this token to Github app code repository secret
 Name: SONAR_TOKEN
 secret: paste the sonarcloud token
 
@@ -390,11 +394,39 @@ Add another secret
 Name: SONAR_URL
 secret: https://sonarcloud.io
 
+### Step 8: Setup Synk Token for the app code pipeline 
+
+#### 1. Sign Up for Snyk
+- Visit the [Snyk website](https://snyk.io) and click on the "Sign Up" button.
+- You can sign up using your GitHub, GitLab, Bitbucket account, or an email address.
+
+#### 2. Verify Your Email
+- If you signed up with an email, verify your email address by clicking on the verification link sent to your email.
+
+#### 3. Log in to Your Snyk Account
+- After verifying your email or signing up through a version control system, log in to your Snyk account.
+
+#### 4. Generate a Snyk Token
+- Navigate to the account settings or your profile settings.
+- Look for the API tokens section.
+- Click on "Generate Token" or "Create New Token."
+- Name your token and, if given the option, set the scopes or permissions for the token.
+- Click "Generate" or "Create."
+
+#### 5. Secure Your Token
+- Copy the generated token and keep it secure. Do not share your token in public places.
+
+You can now use this token to authenticate and integrate Snyk with your projects or CI/CD pipelines.
+
+Copy this token to Github app code repository secret
+Name: SNYK_TOKEN
+secret: paste the snyk token
+
 
 ### Step 8: Review and Deploy Application Code
-Review the app_code repo.
+Review the app code repo.
 In your local terminal 
-cd ~/Desktop/project/Kubernetes-DevSecOps-CI-CD-Project
+cd ~/Desktop/project/reactjs-quiz-app
 Open the folder in Visual Studio Code
 
 Update the kubernetes-manifest/ingress.yaml file with your DNS
@@ -406,10 +438,10 @@ git push
 ```
 
 ### Step 9: Configure ArgoCD
-Create the namespace for the EKS Cluster
+Create the namespace for the EKS Cluster. In your jumphost server terminal 
 
 ```
-kubectl create namespace quiz-app
+kubectl create namespace quiz
 kubectl get namespaces
 ```
 or 
@@ -666,19 +698,37 @@ Once your Ingress application is deployed. It will create an Application Load Ba
 You can check out the load balancer named with k8s-ingress.
 [image]
 
-Now, Copy the ALB-DNS and go to your Domain Provider in my case AWS Route 53 is the domain provider.
+Now, Copy the ALB-DNS and go to your Domain Provider in this case AWS Route 53 is the domain provider.
 
-CREATE A-records using DNS service in aws [Route53]
 
-AWS management console 
-Route 53 
-Hosted zones, select the DNS
-create record 
-Record name = quizapp .cloudcorehub.com
-Route traffic to = Alias to Application and Classic Load Balancer 
-US EAST 1
-Choose the LoadBalancer from cluster deployment 
-Create Record  
+### Creating an A-Record in AWS Route 53 Using ALB DNS
+Create A-records using DNS service in aws [Route53].
+Follow these steps to create an A-record in AWS Route 53 that points to your Application Load Balancer (ALB).
+
+#### 1: Open Route 53 Dashboard
+
+In the search bar at the top, type "Route 53" and click on the Route 53 service to open the Route 53 dashboard.
+
+#### 2: Select Hosted Zone
+
+From the Route 53 dashboard, choose "Hosted zones" under the DNS management section. Then select the hosted zone where you want to add the A-record.
+
+#### 3: Create Record
+
+- Click on the "Create record" button.
+- In the "Record name" field, enter the subdomain or leave it blank for the root domain.
+- For "Record type", select "A – Routes traffic to an IPv4 address and some AWS resources".
+- In the "Value/Route traffic to" section, choose "Alias to Application and Classic Load Balancer".
+- Select the region where your ALB is located.
+- Choose the ALB (it's identified by its DNS name) from the dropdown.
+- (Optional) Adjust the "Routing policy" and "Record ID" as needed.
+
+#### 4: Confirm and Create
+
+Review your configurations and click on the "Create records" button to create your A-record.
+
+By following these steps, you'll successfully create an A-record in AWS Route 53 that points to your Application Load Balancer, allowing you to route traffic from your domain to your ALB.
+ 
 
 Share the quizapp.cloudcorehub.com
 
