@@ -1,17 +1,19 @@
 # Kubernetes-DevSecOps-CI-CD-Project
 
-- [Step 1: Create an IAM user and generate the AWS Access key](#step-1-create-an-iam-user-and-generate-the-aws-access-key)
-- [Step 2: Install Terraform & AWS CLI to deploy our Jenkins Server(EC2) on AWS](#step-2-install-terraform--aws-cli-to-deploy-our-jenkins-server-ec2-on-aws)
-- [Step 3: Deploy the Jenkins Server(EC2) using Terraform](#step-3-deploy-the-jenkins-server-ec2-using-terraform)
-- [Step 4: Configure the Jenkins](#step-4-configure-the-jenkins)
-- [Step 5: Deploy the EKS Cluster using eksctl commands](#step-5-deploy-the-eks-cluster-using-eksctl-commands)
-- [Step 6: Configure the Load Balancer on our EKS because our application will have an ingress controller](#step-6-configure-the-load-balancer-on-our-eks-because-our-application-will-have-an-ingress-controller)
-- [Step 7: Create Amazon ECR Private Repositories for both Tiers (Frontend & Backend)](#step-7-create-amazon-ecr-private-repositories-for-both-tiers-frontend--backend)
-- [Step 8: Install & Configure ArgoCD](#step-8-install--configure-argocd)
-- [Step 9: Configure Sonarqube for our DevSecOps Pipeline](#step-9-configure-sonarqube-for-our-devsecops-pipeline)
-- [Step 10: Install the required plugins and configure the plugins to deploy our Three-Tier Application](#step-10-install-the-required-plugins-and-configure-the-plugins-to-deploy-our-three-tier-application)
-- [Step 11: Set up the Monitoring for our EKS Cluster. We can monitor the Cluster Specifications and other necessary things](#step-11-set-up-the-monitoring-for-our-eks-cluster-we-can-monitor-the-cluster-specifications-and-other-necessary-things)
-- [Step 12: Deploy Three-Tier Application using ArgoCD](#step-12-deploy-three-tier-application-using-argocd)
+- [Step 1: SSH Exchange between local computer and Github account.](#step-1-ssh-exchange-between-local-computer-and-github-account)
+- [Step 2: CREATE AWS Resources.](#step-2-create-aws-resources)
+- [Step 3: Install Terraform & AWS CLI.](#step-3-install-terraform--aws-cli)
+- [Step 4: Deploy the Jumphost Server(EC2) using Terraform on Github Actions.](#step-4-deploy-the-jumphost-server-ec2-using-terraform-on-github-actions)
+- [Step 5: Configure the Jumphost.](#step-5-configure-the-jumphost)
+- [Step 6: Setup Docker Repositories to allow image push for Frontend & Backend images.](#step-6-setup-docker-repositories-to-allow-image-push-for-frontend--backend-images)
+- [Step 7: Configure Sonar Cloud for our app_code Pipeline.](#step-7-configure-sonar-cloud-for-our-app_code-pipeline)
+- [Step 8: Setup Synk Token for the app code pipeline.](#step-8-setup-synk-token-for-the-app-code-pipeline)
+- [Step 9: Review and Deploy Application Code.](#step-9-review-and-deploy-application-code)
+- [Step 10: Configure ArgoCD.](#step-10-configure-argocd)
+- [Step 11: Set up the Monitoring for our EKS Cluster using Prometheus and Grafana.](#step-11-set-up-the-monitoring-for-our-eks-cluster-using-prometheus-and-grafana)
+- [Step 12: Deploy Quiz Application using ArgoCD.](#step-12-deploy-quiz-application-using-argocd)
+- [Step 13: Creating an A-Record in AWS Route 53 Using ALB DNS.](#step-13-creating-an-a-record-in-aws-route-53-using-alb-dns)
+- [Step 14: Clean up.](#step-14-clean-up)
 - [Conclusion](#conclusion)
 
 
@@ -495,7 +497,7 @@ Name: SNYK_TOKEN
 secret: paste the snyk token
 
 
-### Step 8: Review and Deploy Application Code
+### Step 9: Review and Deploy Application Code
 Review the app code repo.
 In your local terminal 
 cd ~/Desktop/project/reactjs-quiz-app
@@ -511,7 +513,7 @@ git commit -am "updated manifest files"
 git push
 ```
 
-### Step 9: Configure ArgoCD
+### Step 10: Configure ArgoCD
 Create the namespace for the EKS Cluster. In your jumphost server terminal 
 
 ```
@@ -600,7 +602,7 @@ Here is our ArgoCD Dashboard.
 ![Screenshot 2024-02-28 at 3 15 45 PM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/19758d15-162c-467b-8325-9eaf3ed2350d)
 
 
-### Step 10: Set up the Monitoring for our EKS Cluster using Prometheus and Grafana. 
+### Step 11: Set up the Monitoring for our EKS Cluster using Prometheus and Grafana. 
 We can monitor the Cluster Specifications and other necessary things.
 
 We will achieve the monitoring using Helm
@@ -765,7 +767,7 @@ Feel free to explore the other details of the Kubernetes Cluster.
 
 
 
-### Step 11: Deploy Quiz Application using ArgoCD.
+### Step 12: Deploy Quiz Application using ArgoCD.
 
 Configure the app_code github repository in ArgoCD.
 Click on Settings and select Repositories
@@ -830,7 +832,7 @@ Now, Copy the ALB-DNS and go to your Domain Provider in this case AWS Route 53 i
 
 ![Screenshot 2024-02-28 at 6 42 29 PM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/f5d7bcee-8238-4298-aefd-e017763e426e)
 
-### Creating an A-Record in AWS Route 53 Using ALB DNS
+### Step 13: Creating an A-Record in AWS Route 53 Using ALB DNS
 Create A-records using DNS service in aws [Route53].
 Follow these steps to create an A-record in AWS Route 53 that points to your Application Load Balancer (ALB).
 
@@ -900,7 +902,7 @@ For Nodes
 
 
 
-### Clean up 
+### Step 14: Clean up 
 From your jumphost server terminal run
 ```
 eksctl delete cluster --name=quizapp-eks-cluster --region=us-east-1
