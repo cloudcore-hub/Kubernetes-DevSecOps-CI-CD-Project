@@ -280,10 +280,13 @@ Navigate to the terraform folder
 
 Do some modifications to the `terraform.tf` file such as changing the bucket name (make sure you have created the bucket manually on AWS console). 
 
-[image]
+<img width="667" alt="Screenshot 2024-03-13 at 1 57 56 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/9f581c1c-7fbe-4359-9f33-1dc198810383">
+
 
 Now, in the `variables.tf` you can change some of the variable `region`, `vpc-name`, `ami_id`, `instance_type`, but you must replace the `instance_keypair` with the Pem File name as you have for your Pem file. Provide the Pem file name that is already created on AWS.
-[image]
+
+<img width="773" alt="Screenshot 2024-03-13 at 1 59 18 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/41747c40-8efe-4e02-aacb-28ce1415a8ec">
+
 
 Review `.github/workflows/terraform.yml`
 
@@ -391,7 +394,6 @@ kubectl get deployment -n kube-system aws-load-balancer-controller
 
 
 
-
 ### Step 6: Setup Docker Repositories to allow image push for  Frontend & Backend images
 Sign in into your Dockerhub Account
 
@@ -484,6 +486,8 @@ secret: https://sonarcloud.io
 #### 5. Secure Your Token
 - Copy the generated token and keep it secure. Do not share your token in public places.
 
+<img width="1500" alt="Screenshot 2024-03-13 at 2 00 50 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/b4835533-5bef-4262-bf6c-e1c79fcf7941">
+
 You can now use this token to authenticate and integrate Snyk with your projects or CI/CD pipelines.
 
 Copy this token to Github app code repository secret
@@ -499,6 +503,8 @@ Open the folder in Visual Studio Code
 
 Update the kubernetes-manifest/ingress.yaml file with your DNS
 Review .github/workflows/quizapp.yml file
+
+<img width="994" alt="Screenshot 2024-03-13 at 2 02 14 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/b33b5756-ad82-437c-969a-5f178be1318e">
 
 ```
 git commit -am "updated manifest files"
@@ -648,11 +654,10 @@ Edit the prometheus-server service
 kubectl edit svc prometheus-kube-prometheus-prometheus -n monitoring
 ```
 
-
-
-
 Modification in the 48th line from ClusterIP to LoadBalancer
-[image]
+
+<img width="544" alt="Screenshot 2024-03-13 at 2 05 49 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/942b9888-021c-4c30-bf47-d4eb388a92d2">
+
 
 Edit the Grafana service
 
@@ -720,11 +725,12 @@ Select Prometheus
 
 
 In the Connection, paste your <Prometheus-LB-DNS>:9090
-[image]
 
 If the URL is correct, then you will see a green notification/
 Click on Save & test.
-[image]
+
+
+<img width="937" alt="Screenshot 2024-03-13 at 2 08 01 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/8d8988d5-b6dd-4f48-bf0c-055a796337c5">
 
 Now, we will create a dashboard to visualize our Kubernetes Cluster Logs.
 Click on Dashboard.
@@ -785,31 +791,40 @@ If your Connection Status is Successful it means repository connected successful
 
 Now, we will create our application which will deploy the frontend, backend. database and ingress
 Click on CREATE APPLICATION.
-[image]
+
+<img width="1017" alt="Screenshot 2024-03-13 at 2 10 48 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/d6740e57-607c-4e93-9a3c-7fbf35ac21a0">
+
+
 
 Provide the details as it is provided in the below snippet and scroll down.
-[image]
+
+<img width="973" alt="Screenshot 2024-03-13 at 2 09 55 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/aa61aea9-c835-4947-a21b-fce354730512">
+
 
 Select the same repository that you configured in the earlier step.
 In the Path, provide the location where your Manifest files are presented and provide other things as shown in the below screenshot.
+
+
+<img width="986" alt="Screenshot 2024-03-13 at 2 13 00 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/3b1cceff-752c-4402-a23a-5ac024f93ba2">
+
+
 Click on CREATE.
-[image]
+
 
 ![Screenshot 2024-03-09 at 7 30 10 PM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/b8ee0f79-0528-464a-beec-cbbf7e544be8)
 
 
-While your database Application is starting to deploy, create an application for the backend.
-Provide the details as it is provided in the below snippet and scroll down.
-[image]
+ArgoCD will deploy all the application in the kubernetes-manifest folder
 
 ![Screenshot 2024-03-09 at 7 10 37 PM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/f012af49-7a74-4f9d-8f5b-d0a7b6959493)
 
+Deployment is synced and healthy 
 
+<img width="1043" alt="Screenshot 2024-03-13 at 2 16 57 PM" src="https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/31853ad3-bcec-4089-864d-abf3623d67de">
 
 
 Once your Ingress application is deployed. It will create an Application Load Balancer
 You can check out the load balancer named with k8s-ingress.
-[image]
 
 Now, Copy the ALB-DNS and go to your Domain Provider in this case AWS Route 53 is the domain provider.
 
@@ -841,6 +856,17 @@ From the Route 53 dashboard, choose "Hosted zones" under the DNS management sect
 
 ![Screenshot 2024-02-29 at 4 53 37 AM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/b8f7bbc7-8605-428e-a7e9-c9fe95ae0357)
 
+#### 4: Confirm and Create
+
+Review your configurations and click on the "Create records" button to create your A-record.
+
+By following these steps, you'll successfully create an A-record in AWS Route 53 that points to your Application Load Balancer, allowing you to route traffic from your domain to your ALB.
+ 
+
+Share the quizapp.cloudcorehub.com
+
+Note: I have created a subdomain quizapp.cloudcorehub.com
+
 
 
 More Grafana dashboard IDs to try 
@@ -871,57 +897,8 @@ For Nodes
 ![Screenshot 2024-03-10 at 3 32 51 AM](https://github.com/cloudcore-hub/Kubernetes-DevSecOps-CI-CD-Project/assets/88560609/1f646754-cc07-4175-b5d0-da663fd1249a)
 
 
-#### 4: Confirm and Create
-
-Review your configurations and click on the "Create records" button to create your A-record.
-
-By following these steps, you'll successfully create an A-record in AWS Route 53 that points to your Application Load Balancer, allowing you to route traffic from your domain to your ALB.
- 
-
-Share the quizapp.cloudcorehub.com
-
-Note: I have created a subdomain quizapp.cloudcorehub.com
-[image]
-
-You can see all 4 application deployments in the below snippet.
-[image]
-
-Now, hit your subdomain after 2 to 3 minutes in your browser to see the magic.
-[image]
-
-You can play with the application by playing the quiz.
-[image]
 
 
-Now, you can see your Grafana Dashboard to view the EKS data such as pods, namespace, deployments, etc.
-[image]
-
-If you want to monitor the quiz-app namespace.
-In the namespace, replace quiz-app with another namespace.
-You will see the deployments that are done by ArgoCD
-[image]
-
-This is the Ingress Application Deployment in ArgoCD
-[image]
-
-This is the Frontend Application Deployment in ArgoCD
-[image]
-
-This is the Backend Application Deployment in ArgoCD
-[image]
-
-This is the Database Application Deployment in ArgoCD
-[image]
-
-If you observe, we have configured the Persistent Volume & Persistent Volume Claim. So, if the pods get deleted then, the data won’t be lost. The Data will be stored on the host machine.
-To validate it, delete both Database pods.
-[image]
-
-Now, the new pods will be started.
-[image]
-
-And Your Application won’t lose a single piece of data.
-[image]
 
 ### Clean up 
 From your jumphost server terminal run
