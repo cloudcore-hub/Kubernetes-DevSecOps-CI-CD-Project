@@ -7,7 +7,7 @@ Flask-Login==0.6.3
 Flask-Session==0.6.0
 Flask-SQLAlchemy==3.1.1
 greenlet==3.0.3
-gunicorn==21.2.0
+gunicorn==23.0.0
 iniconfig==2.0.0
 itsdangerous==2.1.2
 Jinja2==3.1.3
